@@ -1,2 +1,2 @@
-# api-us-life
+# api-uslife
 Us+Life API
