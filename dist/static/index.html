@@ -24,6 +24,8 @@
       messageBox.value = '';
     }
 
+    console.log(location.host, location.hostname)
+
     function init() {
       if (ws) {
         ws.onerror = ws.onopen = ws.onclose = null;
