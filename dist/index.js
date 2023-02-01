@@ -18,9 +18,8 @@ app.get('/', (req, res) => {
 wss.on('connection', (ws) => {
     ws.on('message', (data) => {
         console.log(data.toString());
-        console.log('WS', ws);
         wss.clients.forEach((client) => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
+            if (client !== ws && client.readyState === ws_1.WebSocket.OPEN) {
                 client.send(data);
             }
         });
