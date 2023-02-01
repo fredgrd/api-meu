@@ -30,7 +30,7 @@
         ws.close();
       }
 
-      ws = new WebSocket('ws:localhost:3000');
+      ws = new WebSocket('ws:/');
       ws.onopen = () => {
         console.log('Connection opened!');
       };
