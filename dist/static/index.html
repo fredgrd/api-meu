@@ -24,7 +24,7 @@
       messageBox.value = '';
     }
 
-    console.log(location.host, location.hostname)
+    console.log(location.host, location.hostname);
 
     function init() {
       if (ws) {
@@ -32,7 +32,7 @@
         ws.close();
       }
 
-      ws = new WebSocket('ws:/');
+      ws = new WebSocket(`ws://${location.host}`);
       ws.onopen = () => {
         console.log('Connection opened!');
       };
