@@ -12,10 +12,10 @@ export const startVerification = async (req: Request, res: Response) => {
   const lookupNumber = await twilioService.lookupNumber(number);
   switch (lookupNumber) {
     case TwilioService.LookupNumberStatus.Failed:
-      res.sendStatus(500);
+      res.status(500).send('Failed to lookup the number');
       return;
     case TwilioService.LookupNumberStatus.LookupError:
-      res.sendStatus(400);
+      res.status(400).send('Number might not be valid');
       return;
   }
 

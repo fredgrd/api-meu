@@ -21,10 +21,10 @@ const startVerification = (req, res) => __awaiter(void 0, void 0, void 0, functi
     const lookupNumber = yield twilioService.lookupNumber(number);
     switch (lookupNumber) {
         case twilioService_1.TwilioService.LookupNumberStatus.Failed:
-            res.sendStatus(500);
+            res.status(500).send('Failed to lookup the number');
             return;
         case twilioService_1.TwilioService.LookupNumberStatus.LookupError:
-            res.sendStatus(400);
+            res.status(400).send('Number might not be valid');
             return;
     }
     // Create verification attempt
