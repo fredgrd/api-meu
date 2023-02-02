@@ -1,6 +1,7 @@
 import express, { Express } from 'express';
 import http, { Server } from 'http';
 import { WebSocketServer, WebSocket, Server as WSServer } from 'ws';
+import bodyParser from 'body-parser';
 
 import { authRouter } from './routes/authRouter';
 
@@ -11,6 +12,8 @@ if (process.env.NODE_ENV !== 'production') {
 const app: Express = express();
 const server: Server = http.createServer(app);
 const wss: WSServer = new WebSocketServer({ server });
+
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/static/index.html');

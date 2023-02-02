@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const ws_1 = require("ws");
+const body_parser_1 = __importDefault(require("body-parser"));
 const authRouter_1 = require("./routes/authRouter");
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -13,6 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const wss = new ws_1.WebSocketServer({ server });
+app.use(body_parser_1.default.json());
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/static/index.html');
 });
