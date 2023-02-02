@@ -22,6 +22,7 @@
   "homepage": "https://github.com/fredgrd/api-uslife#readme",
   "dependencies": {
     "express": "^4.18.2",
+    "twilio": "^3.84.1",
     "ws": "^8.12.0"
   },
   "devDependencies": {

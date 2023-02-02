@@ -2,6 +2,8 @@ import express, { Express } from 'express';
 import http, { Server } from 'http';
 import { WebSocketServer, WebSocket, Server as WSServer } from 'ws';
 
+import { authRouter } from './routes/authRouter';
+
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
@@ -13,6 +15,8 @@ const wss: WSServer = new WebSocketServer({ server });
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/static/index.html');
 });
+
+app.use('/auth', authRouter);
 
 wss.on('connection', (ws) => {
   ws.on('message', (data) => {
