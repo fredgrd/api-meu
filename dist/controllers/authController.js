@@ -17,6 +17,7 @@ const twilioService_1 = require("../services/twilioService");
 const startVerification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const number = req.body.number;
     const twilioService = new twilioService_1.TwilioService();
+    console.log("BODY", req.body);
     // Lookup number
     const lookupNumber = yield twilioService.lookupNumber(number);
     switch (lookupNumber) {

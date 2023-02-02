@@ -8,6 +8,8 @@ export const startVerification = async (req: Request, res: Response) => {
   const number = req.body.number;
   const twilioService = new TwilioService();
 
+  console.log("BODY", req.body)
+
   // Lookup number
   const lookupNumber = await twilioService.lookupNumber(number);
   switch (lookupNumber) {
