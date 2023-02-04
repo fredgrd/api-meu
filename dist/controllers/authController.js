@@ -25,6 +25,7 @@ const startVerification = (req, res) => __awaiter(void 0, void 0, void 0, functi
         secure: true,
         domain: 'api.dinolab.one',
     });
+    res.sendStatus(200);
     return;
     // Lookup number
     const lookupNumber = yield twilioService.lookupNumber(number);

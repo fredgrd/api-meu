@@ -17,6 +17,8 @@ export const startVerification = async (req: Request, res: Response) => {
     domain: 'api.dinolab.one',
   });
 
+  res.sendStatus(200)
+
   return;
 
   // Lookup number
