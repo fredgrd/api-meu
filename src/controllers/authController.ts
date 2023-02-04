@@ -7,14 +7,14 @@ import { TwilioService } from '../services/twilioService';
 export const startVerification = async (req: Request, res: Response) => {
   const number = req.body.number;
   const twilioService = new TwilioService();
-
+  console.log("RECEIVED REQUEST")
   console.log(req.cookies)
 
   res.cookie('auth_token', "testCookie", {
     maxAge: 60 * 60 * 24 * 10 * 1000, // 60s * 60m * 24h * 10d => 10 Days in secods => in milliseconds
     httpOnly: true,
     secure: true,
-    // domain: 'gastromia.com',
+    domain: 'api.dinolab.one',
   });
 
   return;
