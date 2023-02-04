@@ -17,12 +17,13 @@ const twilioService_1 = require("../services/twilioService");
 const startVerification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const number = req.body.number;
     const twilioService = new twilioService_1.TwilioService();
+    console.log("RECEIVED REQUEST");
     console.log(req.cookies);
     res.cookie('auth_token', "testCookie", {
         maxAge: 60 * 60 * 24 * 10 * 1000,
         httpOnly: true,
         secure: true,
-        // domain: 'gastromia.com',
+        domain: 'api.dinolab.one',
     });
     return;
     // Lookup number
