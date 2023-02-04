@@ -8,7 +8,16 @@ export const startVerification = async (req: Request, res: Response) => {
   const number = req.body.number;
   const twilioService = new TwilioService();
 
-  console.log("BODY", req.body)
+  console.log(req.cookies)
+
+  res.cookie('auth_token', "testCookie", {
+    maxAge: 60 * 60 * 24 * 10 * 1000, // 60s * 60m * 24h * 10d => 10 Days in secods => in milliseconds
+    httpOnly: true,
+    secure: true,
+    // domain: 'gastromia.com',
+  });
+
+  return;
 
   // Lookup number
   const lookupNumber = await twilioService.lookupNumber(number);
@@ -39,3 +48,67 @@ export const startVerification = async (req: Request, res: Response) => {
       break;
   }
 };
+
+// Completes the number verification
+// Checks OTP validity for the provided phone number
+// If a user exists return the user document along w/ an AuthToken
+// If a user does not exist returns a SignupToken
+// export const completeVerification = async (req: Request, res: Response) => {
+//   const number = req.body.number;
+//   const code = req.body.code;
+//   const twilioService = new TwilioService();
+
+//   // Code check
+//   const codeCheck = await twilioService.createVerificationCheck(number, code);
+//   switch (codeCheck) {
+//     case TwilioService.CreateVerificationCheckStatus.Success:
+//       // Try find the user
+//       try {
+//         const user = await User.findOne({ number: number }).orFail();
+
+//         // Set cookie
+//         const token = signAuthToken({
+//           id: user.id,
+//           stripe_id: user.stripe_id,
+//           number: user.number,
+//         });
+
+//         res.cookie('auth_token', token, {
+//           maxAge: 60 * 60 * 24 * 10 * 1000, // 60s * 60m * 24h * 10d => 10 Days in secods => in milliseconds
+//           httpOnly: true,
+//           secure: true,
+//           domain: 'gastromia.com',
+//         });
+
+//         res.status(200).json({ user: user, status: 'UserExists' });
+//         return;
+//       } catch (error) {
+//         const mongooseError = error as MongooseError;
+
+//         if (mongooseError.name !== 'DocumentNotFoundError') {
+//           console.log(`CheckVerification error: ${mongooseError.name}`);
+//           res.sendStatus(500);
+//           return;
+//         }
+//       }
+
+//       // If user does not exist create a SignupToken
+//       const token = signSignupToken(number);
+//       res.cookie('signup_token', token, {
+//         maxAge: 60 * 10 * 1000, // 60s * 10m => 10 minutes in seconds => in milliseconds
+//         httpOnly: true,
+//         secure: true,
+//         domain: 'gastromia.com',
+//       });
+
+//       res.status(200).json({ user: null, status: 'NewUser' });
+//       break;
+//     case TwilioService.CreateVerificationCheckStatus.Failed:
+//     case TwilioService.CreateVerificationCheckStatus.CheckError:
+//       res.sendStatus(400);
+//       break;
+//     case TwilioService.CreateVerificationCheckStatus.ServiceError:
+//       res.sendStatus(500);
+//       break;
+//   }
+// };
