@@ -26,7 +26,7 @@ export class TwilioService {
       }
     } catch (error) {
       console.log(`LookupNumber error: ${error}`);
-      return TwilioService.LookupNumberStatus.LookupError;
+      return TwilioService.LookupNumberStatus.Error;
     }
   }
 
@@ -52,10 +52,10 @@ export class TwilioService {
         }
       } catch (error) {
         console.log(`CreateVerificationAttempt error: ${error}`);
-        return TwilioService.CreateVerificationAttemptStatus.AttemptError;
+        return TwilioService.CreateVerificationAttemptStatus.Error;
       }
     } else {
-      return TwilioService.CreateVerificationAttemptStatus.ServiceError;
+      return TwilioService.CreateVerificationAttemptStatus.Error;
     }
   }
 
@@ -84,10 +84,10 @@ export class TwilioService {
         }
       } catch (error) {
         console.log(`CreateVerificationCheck error: ${error}`);
-        return TwilioService.CreateVerificationCheckStatus.CheckError;
+        return TwilioService.CreateVerificationCheckStatus.Error;
       }
     } else {
-      return TwilioService.CreateVerificationCheckStatus.ServiceError;
+      return TwilioService.CreateVerificationCheckStatus.Error;
     }
   }
 }
@@ -96,20 +96,18 @@ export namespace TwilioService {
   export enum CreateVerificationCheckStatus {
     Success,
     Failed, // Client error
-    CheckError, // Client / Server error
-    ServiceError, // Server error
+    Error, // Server error
   }
 
   export enum LookupNumberStatus {
     Success,
     Failed, // Server error
-    LookupError, // Client error
+    Error, // Client error
   }
 
   export enum CreateVerificationAttemptStatus {
     Success,
     Failed,
-    AttemptError,
-    ServiceError,
+    Error,
   }
 }

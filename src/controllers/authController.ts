@@ -1,53 +1,47 @@
 import { Request, Response } from 'express';
+import { MongooseError } from 'mongoose';
+import { APIError } from '../database/models/errors';
 import { TwilioService } from '../services/twilioService';
+import { Twilio } from 'twilio';
+
+import { User } from '../database/models/user';
+
+import { signSignupToken } from '../helpers/apiTokens';
+import { signAuthToken } from '../helpers/apiTokens';
 
 // Starts the phone number verification
 // Checks if the provided number is valid and well formatted
 // Sends an OTP to the provided phone number as a SMS
-export const startVerification = async (req: Request, res: Response) => {
+export const startVerificationCheck = async (req: Request, res: Response) => {
   const number = req.body.number;
+
   const twilioService = new TwilioService();
-  console.log("RECEIVED REQUEST")
-  console.log(req.cookies)
-
-  res.cookie('auth_token', "testCookie", {
-    maxAge: 60 * 60 * 24 * 10 * 1000, // 60s * 60m * 24h * 10d => 10 Days in secods => in milliseconds
-    httpOnly: true,
-    secure: true,
-    domain: 'api.dinolab.one',
-  });
-
-  res.sendStatus(200)
-
-  return;
 
   // Lookup number
-  const lookupNumber = await twilioService.lookupNumber(number);
-  switch (lookupNumber) {
+  const lookupResult = await twilioService.lookupNumber(number);
+  switch (lookupResult) {
     case TwilioService.LookupNumberStatus.Failed:
-      res.status(500).send('Failed to lookup the number');
+      res.status(400).send('Number is not valid');
       return;
-    case TwilioService.LookupNumberStatus.LookupError:
-      res.status(400).send('Number might not be valid');
+    case TwilioService.LookupNumberStatus.Error:
+      res.status(500).send('Lookup service error');
       return;
   }
 
-  // Create verification attempt
+  // Verification attemp
   const verificationAttempt = await twilioService.createVerificationAttempt(
     number
   );
-
   switch (verificationAttempt) {
     case TwilioService.CreateVerificationAttemptStatus.Success:
       res.sendStatus(200);
-      break;
+      return;
     case TwilioService.CreateVerificationAttemptStatus.Failed:
-    case TwilioService.CreateVerificationAttemptStatus.AttemptError:
       res.status(400).send('Verification attempt failed');
-      break;
-    case TwilioService.CreateVerificationAttemptStatus.ServiceError:
-      res.status(500).send('Verification attempt failed due to service error');
-      break;
+      return;
+    case TwilioService.CreateVerificationAttemptStatus.Error:
+      res.status(500).send('Verification service error');
+      return;
   }
 };
 
@@ -55,62 +49,74 @@ export const startVerification = async (req: Request, res: Response) => {
 // Checks OTP validity for the provided phone number
 // If a user exists return the user document along w/ an AuthToken
 // If a user does not exist returns a SignupToken
-// export const completeVerification = async (req: Request, res: Response) => {
-//   const number = req.body.number;
-//   const code = req.body.code;
-//   const twilioService = new TwilioService();
+export const completeVerificationCheck = async (
+  req: Request,
+  res: Response
+) => {
+  const number: string = req.body.number;
+  const code: string = req.body.code;
 
-//   // Code check
-//   const codeCheck = await twilioService.createVerificationCheck(number, code);
-//   switch (codeCheck) {
-//     case TwilioService.CreateVerificationCheckStatus.Success:
-//       // Try find the user
-//       try {
-//         const user = await User.findOne({ number: number }).orFail();
+  const twilioService = new TwilioService();
 
-//         // Set cookie
-//         const token = signAuthToken({
-//           id: user.id,
-//           stripe_id: user.stripe_id,
-//           number: user.number,
-//         });
+  const verificationCheck = await twilioService.createVerificationCheck(
+    number,
+    code
+  );
+  switch (verificationCheck) {
+    case TwilioService.CreateVerificationCheckStatus.Success:
+      break;
+    case TwilioService.CreateVerificationCheckStatus.Failed:
+      res.status(400).send('Code in invalid');
+      return;
+    case TwilioService.CreateVerificationCheckStatus.Error:
+      res.status(500).send(APIError.Internal);
+      return;
+  }
 
-//         res.cookie('auth_token', token, {
-//           maxAge: 60 * 60 * 24 * 10 * 1000, // 60s * 60m * 24h * 10d => 10 Days in secods => in milliseconds
-//           httpOnly: true,
-//           secure: true,
-//           domain: 'gastromia.com',
-//         });
+  try {
+    const user = await User.findOne({ number: number }).orFail();
 
-//         res.status(200).json({ user: user, status: 'UserExists' });
-//         return;
-//       } catch (error) {
-//         const mongooseError = error as MongooseError;
+    // Set cookie
+    const token = signAuthToken({
+      id: user.id,
+      number: user.number,
+    });
 
-//         if (mongooseError.name !== 'DocumentNotFoundError') {
-//           console.log(`CheckVerification error: ${mongooseError.name}`);
-//           res.sendStatus(500);
-//           return;
-//         }
-//       }
+    res.cookie('auth_token', token, {
+      maxAge: 60 * 60 * 24 * 10 * 1000, // 60s * 60m * 24h * 10d => 10 Days in secods => in milliseconds
+      httpOnly: true,
+      secure: true,
+      domain: 'api.dinolab.one',
+    });
 
-//       // If user does not exist create a SignupToken
-//       const token = signSignupToken(number);
-//       res.cookie('signup_token', token, {
-//         maxAge: 60 * 10 * 1000, // 60s * 10m => 10 minutes in seconds => in milliseconds
-//         httpOnly: true,
-//         secure: true,
-//         domain: 'gastromia.com',
-//       });
+    res.status(200).json({ user: user, new_user: false });
+    return;
+  } catch (error) {
+    const mongooseError = error as MongooseError;
 
-//       res.status(200).json({ user: null, status: 'NewUser' });
-//       break;
-//     case TwilioService.CreateVerificationCheckStatus.Failed:
-//     case TwilioService.CreateVerificationCheckStatus.CheckError:
-//       res.sendStatus(400);
-//       break;
-//     case TwilioService.CreateVerificationCheckStatus.ServiceError:
-//       res.sendStatus(500);
-//       break;
-//   }
-// };
+    if (mongooseError.name !== 'DocumentNotFoundError') {
+      console.log(`CheckVerification error: ${mongooseError.name}`);
+      res.status(500).send(mongooseError.message);
+      return;
+    }
+  }
+
+  // If user does not exist create a SignupToken
+  const token = signSignupToken(number);
+
+  res.cookie('signup_token', token, {
+    maxAge: 60 * 10 * 1000, // 60s * 10m => 10 minutes in seconds => in milliseconds
+    httpOnly: true,
+    secure: true,
+    domain: 'api.dinolab.one',
+  });
+
+  res.status(200).json({ user: null, new_user: true });
+};
+
+// Logous out the user
+// Clears the user AuthToken from the browser
+export const logout = async (req: Request, res: Response) => {
+  res.clearCookie('auth_token');
+  res.sendStatus(200);
+};

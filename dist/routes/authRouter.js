@@ -5,4 +5,6 @@ const express_1 = require("express");
 const authController_1 = require("../controllers/authController");
 const router = (0, express_1.Router)();
 exports.authRouter = router;
-router.post('/start', authController_1.startVerification);
+router.post('/start', authController_1.startVerificationCheck);
+router.post('/complete', authController_1.completeVerificationCheck);
+router.get('/logout', authController_1.logout);

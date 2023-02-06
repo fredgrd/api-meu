@@ -32,7 +32,7 @@ class TwilioService {
             }
             catch (error) {
                 console.log(`LookupNumber error: ${error}`);
-                return TwilioService.LookupNumberStatus.LookupError;
+                return TwilioService.LookupNumberStatus.Error;
             }
         });
     }
@@ -56,11 +56,11 @@ class TwilioService {
                 }
                 catch (error) {
                     console.log(`CreateVerificationAttempt error: ${error}`);
-                    return TwilioService.CreateVerificationAttemptStatus.AttemptError;
+                    return TwilioService.CreateVerificationAttemptStatus.Error;
                 }
             }
             else {
-                return TwilioService.CreateVerificationAttemptStatus.ServiceError;
+                return TwilioService.CreateVerificationAttemptStatus.Error;
             }
         });
     }
@@ -84,11 +84,11 @@ class TwilioService {
                 }
                 catch (error) {
                     console.log(`CreateVerificationCheck error: ${error}`);
-                    return TwilioService.CreateVerificationCheckStatus.CheckError;
+                    return TwilioService.CreateVerificationCheckStatus.Error;
                 }
             }
             else {
-                return TwilioService.CreateVerificationCheckStatus.ServiceError;
+                return TwilioService.CreateVerificationCheckStatus.Error;
             }
         });
     }
@@ -99,20 +99,18 @@ exports.TwilioService = TwilioService;
     (function (CreateVerificationCheckStatus) {
         CreateVerificationCheckStatus[CreateVerificationCheckStatus["Success"] = 0] = "Success";
         CreateVerificationCheckStatus[CreateVerificationCheckStatus["Failed"] = 1] = "Failed";
-        CreateVerificationCheckStatus[CreateVerificationCheckStatus["CheckError"] = 2] = "CheckError";
-        CreateVerificationCheckStatus[CreateVerificationCheckStatus["ServiceError"] = 3] = "ServiceError";
+        CreateVerificationCheckStatus[CreateVerificationCheckStatus["Error"] = 2] = "Error";
     })(CreateVerificationCheckStatus = TwilioService.CreateVerificationCheckStatus || (TwilioService.CreateVerificationCheckStatus = {}));
     let LookupNumberStatus;
     (function (LookupNumberStatus) {
         LookupNumberStatus[LookupNumberStatus["Success"] = 0] = "Success";
         LookupNumberStatus[LookupNumberStatus["Failed"] = 1] = "Failed";
-        LookupNumberStatus[LookupNumberStatus["LookupError"] = 2] = "LookupError";
+        LookupNumberStatus[LookupNumberStatus["Error"] = 2] = "Error";
     })(LookupNumberStatus = TwilioService.LookupNumberStatus || (TwilioService.LookupNumberStatus = {}));
     let CreateVerificationAttemptStatus;
     (function (CreateVerificationAttemptStatus) {
         CreateVerificationAttemptStatus[CreateVerificationAttemptStatus["Success"] = 0] = "Success";
         CreateVerificationAttemptStatus[CreateVerificationAttemptStatus["Failed"] = 1] = "Failed";
-        CreateVerificationAttemptStatus[CreateVerificationAttemptStatus["AttemptError"] = 2] = "AttemptError";
-        CreateVerificationAttemptStatus[CreateVerificationAttemptStatus["ServiceError"] = 3] = "ServiceError";
+        CreateVerificationAttemptStatus[CreateVerificationAttemptStatus["Error"] = 2] = "Error";
     })(CreateVerificationAttemptStatus = TwilioService.CreateVerificationAttemptStatus || (TwilioService.CreateVerificationAttemptStatus = {}));
 })(TwilioService = exports.TwilioService || (exports.TwilioService = {}));

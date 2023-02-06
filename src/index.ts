@@ -1,10 +1,13 @@
 import express, { Express } from 'express';
 import http, { Server } from 'http';
 import { WebSocketServer, WebSocket, Server as WSServer } from 'ws';
-import cookieparser from "cookie-parser";
+import cookieparser from 'cookie-parser';
 import bodyParser from 'body-parser';
 
+import { connectDatabase } from './database';
+
 import { authRouter } from './routes/authRouter';
+import { userRouter } from './routes/userRouter';
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -13,6 +16,9 @@ if (process.env.NODE_ENV !== 'production') {
 const app: Express = express();
 const server: Server = http.createServer(app);
 const wss: WSServer = new WebSocketServer({ server });
+
+// Connect database
+connectDatabase();
 
 /// Cookie parser
 app.use(cookieparser());
@@ -23,7 +29,11 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/static/index.html');
 });
 
+// Auth routes
 app.use('/auth', authRouter);
+
+// User routes
+app.use('/user', userRouter);
 
 wss.on('connection', (ws) => {
   ws.on('message', (data) => {

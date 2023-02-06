@@ -1,16 +1,16 @@
 import { Router } from 'express';
 import {
-  startVerification,
-  // completeVerification,
-  // logout,
+  startVerificationCheck,
+  completeVerificationCheck,
+  logout,
 } from '../controllers/authController';
 
 const router = Router();
 
-router.post('/start', startVerification);
+router.post('/start', startVerificationCheck);
 
-// router.post('/complete', completeVerification);
+router.post('/complete', completeVerificationCheck);
 
-// router.get('/logout', logout);
+router.get('/logout', logout);
 
 export { router as authRouter };
