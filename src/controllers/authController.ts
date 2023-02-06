@@ -95,7 +95,7 @@ export const completeVerificationCheck = async (
     const mongooseError = error as MongooseError;
 
     if (mongooseError.name !== 'DocumentNotFoundError') {
-      console.log(`CheckVerification error: ${mongooseError.name}`);
+      console.log(`CheckVerification error: ${mongooseError.name} ${mongooseError.message}`);
       res.status(500).send(mongooseError.message);
       return;
     }
