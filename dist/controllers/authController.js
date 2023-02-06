@@ -84,7 +84,7 @@ const completeVerificationCheck = (req, res) => __awaiter(void 0, void 0, void 0
     catch (error) {
         const mongooseError = error;
         if (mongooseError.name !== 'DocumentNotFoundError') {
-            console.log(`CheckVerification error: ${mongooseError.name}`);
+            console.log(`CheckVerification error: ${mongooseError.name} ${mongooseError.message}`);
             res.status(500).send(mongooseError.message);
             return;
         }
