@@ -33,6 +33,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const user = yield user_1.User.create({
             number: signupToken.number,
             name: name,
+            avatar_url: `https://ui-avatars.com/api/?size=300&name=${name}&length=1`,
         });
         // Set cookie
         const token = (0, apiTokens_2.signAuthToken)({

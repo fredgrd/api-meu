@@ -6,7 +6,7 @@ export interface IUser {
   number: string;
   name: string;
   avatar_url: string;
-  createdAt?: Date;
+  created_at?: Date;
 }
 
 // Schemas
@@ -25,7 +25,7 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  createdAt: {
+  created_at: {
     type: Date,
     default: Date.now,
   },
