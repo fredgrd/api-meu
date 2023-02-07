@@ -78,7 +78,16 @@ const completeVerificationCheck = (req, res) => __awaiter(void 0, void 0, void 0
             secure: true,
             domain: 'api.dinolab.one',
         });
-        res.status(200).json({ user: user, new_user: false });
+        res.status(200).json({
+            user: {
+                id: user.id,
+                number: user.number,
+                name: user.name,
+                avatar_url: user.avatar_url,
+                created_at: user.created_at,
+            },
+            new_user: false,
+        });
         return;
     }
     catch (error) {

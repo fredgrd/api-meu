@@ -89,13 +89,24 @@ export const completeVerificationCheck = async (
       domain: 'api.dinolab.one',
     });
 
-    res.status(200).json({ user: user, new_user: false });
+    res.status(200).json({
+      user: {
+        id: user.id,
+        number: user.number,
+        name: user.name,
+        avatar_url: user.avatar_url,
+        created_at: user.created_at,
+      },
+      new_user: false,
+    });
     return;
   } catch (error) {
     const mongooseError = error as MongooseError;
 
     if (mongooseError.name !== 'DocumentNotFoundError') {
-      console.log(`CheckVerification error: ${mongooseError.name} ${mongooseError.message}`);
+      console.log(
+        `CheckVerification error: ${mongooseError.name} ${mongooseError.message}`
+      );
       res.status(500).send(mongooseError.message);
       return;
     }
