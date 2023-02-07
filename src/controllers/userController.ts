@@ -46,7 +46,13 @@ export const createUser = async (req: Request, res: Response) => {
 
     res.clearCookie('signup_token');
 
-    res.status(200).json(user);
+    res.status(200).json({
+      id: user.id,
+      number: user.number,
+      name: user.name,
+      avatar_url: user.avatar_url,
+      created_at: user.created_at,
+    });
   } catch (error) {
     const mongooseError = error as MongooseError;
     console.log(`CreateUser error: ${mongooseError.message}`);

@@ -47,7 +47,13 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             domain: 'api.dinolab.one',
         });
         res.clearCookie('signup_token');
-        res.status(200).json(user);
+        res.status(200).json({
+            id: user.id,
+            number: user.number,
+            name: user.name,
+            avatar_url: user.avatar_url,
+            created_at: user.created_at,
+        });
     }
     catch (error) {
         const mongooseError = error;
