@@ -28,6 +28,7 @@ export const createUser = async (req: Request, res: Response) => {
     const user = await User.create({
       number: signupToken.number,
       name: name,
+      avatar_url: `https://ui-avatars.com/api/?size=300&name=${name}&length=1`,
     });
 
     // Set cookie

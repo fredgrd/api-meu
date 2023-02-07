@@ -5,6 +5,7 @@ export interface IUser {
   _id?: Types.ObjectId;
   number: string;
   name: string;
+  avatar_url: string;
   createdAt?: Date;
 }
 
@@ -17,6 +18,10 @@ const UserSchema = new Schema({
     unique: true,
   },
   name: {
+    type: String,
+    required: true,
+  },
+  avatar_url: {
     type: String,
     required: true,
   },
