@@ -5,6 +5,9 @@ import { signAuthToken } from '../helpers/apiTokens';
 import { User } from '../database/models/user';
 import { APIError } from '../database/models/errors';
 
+import authenticateUser from '../helpers/authenticateUser';
+import { areReducedContact, IReducedContact } from '../database/models/contact';
+
 export const createUser = async (req: Request, res: Response) => {
   const token = req.cookies.signup_token;
   const name = req.body.name;
@@ -57,5 +60,43 @@ export const createUser = async (req: Request, res: Response) => {
     const mongooseError = error as MongooseError;
     console.log(`CreateUser error: ${mongooseError.message}`);
     res.status(500).send(APIError.Internal);
+  }
+};
+
+export const filterContacts = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'UserController/filterContacts');
+
+  if (!authToken) {
+    return;
+  }
+
+  const contacts: IReducedContact[] | any = req.body.contacts;
+
+  if (contacts && areReducedContact(contacts)) {
+    try {
+      const users = await User.find({
+        number: { $in: contacts.map((e) => e.number) },
+      }).select('number');
+
+      const reducedContacts: IReducedContact[] = [];
+      for (const user of users) {
+        const contact = contacts.find((e) => e.number === user.number);
+
+        if (contact) {
+          contact.is_user = true;
+          reducedContacts.push(contact);
+        }
+      }
+
+      res.status(200).send({ contacts: reducedContacts });
+    } catch (error) {
+      const mongooseError = error as MongooseError;
+      console.log(
+        `UserController/filterContacts error: ${mongooseError.name} ${mongooseError.message}`
+      );
+      res.status(500).send(APIError.Internal);
+    }
+  } else {
+    res.status(400).send('No contacts provided');
   }
 };

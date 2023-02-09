@@ -8,12 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createUser = void 0;
+exports.filterContacts = exports.createUser = void 0;
 const apiTokens_1 = require("../helpers/apiTokens");
 const apiTokens_2 = require("../helpers/apiTokens");
 const user_1 = require("../database/models/user");
 const errors_1 = require("../database/models/errors");
+const authenticateUser_1 = __importDefault(require("../helpers/authenticateUser"));
+const contact_1 = require("../database/models/contact");
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const token = req.cookies.signup_token;
     const name = req.body.name;
@@ -62,3 +67,35 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.createUser = createUser;
+const filterContacts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/filterContacts');
+    if (!authToken) {
+        return;
+    }
+    const contacts = req.body.contacts;
+    if (contacts && (0, contact_1.areReducedContact)(contacts)) {
+        try {
+            const users = yield user_1.User.find({
+                number: { $in: contacts.map((e) => e.number) },
+            }).select('number');
+            const reducedContacts = [];
+            for (const user of users) {
+                const contact = contacts.find((e) => e.number === user.number);
+                if (contact) {
+                    contact.is_user = true;
+                    reducedContacts.push(contact);
+                }
+            }
+            res.status(200).send({ contacts: reducedContacts });
+        }
+        catch (error) {
+            const mongooseError = error;
+            console.log(`UserController/filterContacts error: ${mongooseError.name} ${mongooseError.message}`);
+            res.status(500).send(errors_1.APIError.Internal);
+        }
+    }
+    else {
+        res.status(400).send('No contacts provided');
+    }
+});
+exports.filterContacts = filterContacts;
