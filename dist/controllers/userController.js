@@ -76,13 +76,24 @@ const filterContacts = (req, res) => __awaiter(void 0, void 0, void 0, function*
     const contacts = req.body.contacts;
     if (contacts && (0, contact_1.areReducedContact)(contacts)) {
         try {
+            const contactNumbers = contacts.map((e) => e.number);
             const users = yield user_1.User.find({
-                number: { $in: contacts.map((e) => e.number) },
+                number: { $in: contactNumbers },
             }).select('number');
+            const requests = yield friendRequest_1.FriendRequest.find({
+                from: authToken.number,
+                to: { $in: contactNumbers },
+            });
             const reducedContacts = [];
             for (const user of users) {
                 const contact = contacts.find((e) => e.number === user.number);
-                if (contact) {
+                const request = requests.find((e) => e.to === user.number);
+                if (contact && request) {
+                    contact.is_user = true;
+                    contact.friend_request = true;
+                    reducedContacts.push(contact);
+                }
+                else if (contact) {
                     contact.is_user = true;
                     reducedContacts.push(contact);
                 }

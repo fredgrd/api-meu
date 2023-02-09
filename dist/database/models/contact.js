@@ -6,7 +6,8 @@ const isReducedContact = (contact) => {
     const unsafeCast = contact;
     return (unsafeCast.id !== undefined &&
         unsafeCast.number !== undefined &&
-        unsafeCast.is_user !== undefined);
+        unsafeCast.is_user !== undefined &&
+        unsafeCast.friend_request !== undefined);
 };
 exports.isReducedContact = isReducedContact;
 const areReducedContact = (contacts) => {

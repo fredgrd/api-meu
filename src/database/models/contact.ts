@@ -5,6 +5,7 @@ export interface IReducedContact {
   id: string;
   number: string;
   is_user: boolean;
+  friend_request: boolean;
 }
 
 // Helpers
@@ -14,7 +15,8 @@ export const isReducedContact = (contact: any): contact is IReducedContact => {
   return (
     unsafeCast.id !== undefined &&
     unsafeCast.number !== undefined &&
-    unsafeCast.is_user !== undefined
+    unsafeCast.is_user !== undefined &&
+    unsafeCast.friend_request !== undefined
   );
 };
 

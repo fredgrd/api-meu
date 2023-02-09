@@ -75,15 +75,26 @@ export const filterContacts = async (req: Request, res: Response) => {
 
   if (contacts && areReducedContact(contacts)) {
     try {
+      const contactNumbers = contacts.map((e) => e.number);
       const users = await User.find({
-        number: { $in: contacts.map((e) => e.number) },
+        number: { $in: contactNumbers },
       }).select('number');
+
+      const requests = await FriendRequest.find({
+        from: authToken.number,
+        to: { $in: contactNumbers },
+      });
 
       const reducedContacts: IReducedContact[] = [];
       for (const user of users) {
         const contact = contacts.find((e) => e.number === user.number);
+        const request = requests.find((e) => e.to === user.number);
 
-        if (contact) {
+        if (contact && request) {
+          contact.is_user = true;
+          contact.friend_request = true;
+          reducedContacts.push(contact);
+        } else if (contact) {
           contact.is_user = true;
           reducedContacts.push(contact);
         }
