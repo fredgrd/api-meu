@@ -7,6 +7,7 @@ import { APIError } from '../database/models/errors';
 
 import authenticateUser from '../helpers/authenticateUser';
 import { areReducedContact, IReducedContact } from '../database/models/contact';
+import { FriendRequest } from '../database/models/friendRequest';
 
 export const createUser = async (req: Request, res: Response) => {
   const token = req.cookies.signup_token;
@@ -98,5 +99,57 @@ export const filterContacts = async (req: Request, res: Response) => {
     }
   } else {
     res.status(400).send('No contacts provided');
+  }
+};
+
+// Creates a friend request.
+// From user (number) to receiver (number)
+export const createFriendRequest = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(
+    req,
+    res,
+    'UserController/createFriendRequest'
+  );
+
+  if (!authToken) {
+    return;
+  }
+
+  const to: string | any = req.body.to;
+
+  if (to && typeof to === 'string') {
+    if (to === authToken.number) {
+      res.status(400).send('Cannot add yourself');
+      return;
+    }
+
+    try {
+      const checkRequest = await FriendRequest.findOne({
+        from: authToken.number,
+        to: to,
+      });
+
+      if (checkRequest) {
+        // Refresh the request
+        res.sendStatus(200);
+        return;
+      }
+
+      const request = await FriendRequest.create({
+        from: authToken.number,
+        to: to,
+      });
+      res
+        .status(200)
+        .send({ id: request.id, from: request.from, to: request.to });
+    } catch (error) {
+      const mongooseError = error as MongooseError;
+      console.log(
+        `UserController/createFriendRequest error: ${mongooseError.name} ${mongooseError.message}`
+      );
+      res.status(500).send(APIError.Internal);
+    }
+  } else {
+    res.status(400).send('No receiver provided');
   }
 };
