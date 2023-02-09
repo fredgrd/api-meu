@@ -1,5 +1,3 @@
-import { Schema, Types, model } from 'mongoose';
-
 // Interfaces
 export interface IReducedContact {
   id: string;
