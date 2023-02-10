@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFriendRequest = exports.filterContacts = exports.createUser = void 0;
+exports.createFriendRequest = exports.filterContacts = exports.fetchUser = exports.createUser = void 0;
 const apiTokens_1 = require("../helpers/apiTokens");
 const apiTokens_2 = require("../helpers/apiTokens");
 const user_1 = require("../database/models/user");
@@ -20,6 +20,13 @@ const errors_1 = require("../database/models/errors");
 const authenticateUser_1 = __importDefault(require("../helpers/authenticateUser"));
 const contact_1 = require("../database/models/contact");
 const friendRequest_1 = require("../database/models/friendRequest");
+/**
+ * Creates a user document.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ * @returns
+ */
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const token = req.cookies.signup_token;
     const name = req.body.name;
@@ -68,6 +75,42 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.createUser = createUser;
+/**
+ * Fetches the user document.
+ * Responds with the user document if successfull.
+ * Refreshes the auth_token.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/fetchUser');
+    if (!authToken)
+        return;
+    try {
+        const user = yield user_1.User.findById(authToken.id);
+        // Fetch friends
+        if (user) {
+            res.status(200).json({
+                id: user.id,
+                number: user.number,
+                name: user.name,
+                avatar_url: user.avatar_url,
+                created_at: user.created_at,
+            });
+            return;
+        }
+        else {
+            res.status(400).send('User not found');
+        }
+    }
+    catch (error) {
+        const mongooseError = error;
+        console.log(`UserController/fetchUser error: ${mongooseError.name} ${mongooseError.message}`);
+        res.status(500).send(errors_1.APIError.Internal);
+    }
+});
+exports.fetchUser = fetchUser;
 const filterContacts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/filterContacts');
     if (!authToken) {
@@ -84,6 +127,7 @@ const filterContacts = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 from: authToken.number,
                 to: { $in: contactNumbers },
             });
+            console.log(requests, authToken.number);
             const reducedContacts = [];
             for (const user of users) {
                 const contact = contacts.find((e) => e.number === user.number);

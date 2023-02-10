@@ -9,6 +9,13 @@ import authenticateUser from '../helpers/authenticateUser';
 import { areReducedContact, IReducedContact } from '../database/models/contact';
 import { FriendRequest } from '../database/models/friendRequest';
 
+/**
+ * Creates a user document.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ * @returns
+ */
 export const createUser = async (req: Request, res: Response) => {
   const token = req.cookies.signup_token;
   const name = req.body.name;
@@ -64,6 +71,44 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Fetches the user document.
+ * Responds with the user document if successfull.
+ * Refreshes the auth_token.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+export const fetchUser = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'UserController/fetchUser');
+
+  if (!authToken) return;
+
+  try {
+    const user = await User.findById(authToken.id);
+    // Fetch friends
+
+    if (user) {
+      res.status(200).json({
+        id: user.id,
+        number: user.number,
+        name: user.name,
+        avatar_url: user.avatar_url,
+        created_at: user.created_at,
+      });
+      return;
+    } else {
+      res.status(400).send('User not found');
+    }
+  } catch (error) {
+    const mongooseError = error as MongooseError;
+    console.log(
+      `UserController/fetchUser error: ${mongooseError.name} ${mongooseError.message}`
+    );
+    res.status(500).send(APIError.Internal);
+  }
+};
+
 export const filterContacts = async (req: Request, res: Response) => {
   const authToken = authenticateUser(req, res, 'UserController/filterContacts');
 
@@ -84,6 +129,7 @@ export const filterContacts = async (req: Request, res: Response) => {
         from: authToken.number,
         to: { $in: contactNumbers },
       });
+      console.log(requests, authToken.number);
 
       const reducedContacts: IReducedContact[] = [];
       for (const user of users) {
