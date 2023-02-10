@@ -28,7 +28,8 @@ const UserSchema = new Schema({
     default: '',
   },
   friends: {
-    type: [String],
+    type: [Schema.Types.ObjectId],
+    ref: 'User',
     required: true,
   },
   created_at: {

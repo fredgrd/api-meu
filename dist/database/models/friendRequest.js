@@ -22,6 +22,11 @@ const FriendRequestSchema = new mongoose_1.Schema({
         ref: 'User',
         required: true,
     },
+    status: {
+        type: String,
+        enum: ['pending', 'accepted', 'rejected'],
+        required: true,
+    },
 });
 // Model
 exports.FriendRequest = (0, mongoose_1.model)('FriendRequest', FriendRequestSchema);

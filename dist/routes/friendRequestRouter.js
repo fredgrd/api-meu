@@ -6,3 +6,5 @@ const friendRequestController_1 = require("../controllers/friendRequestControlle
 const router = (0, express_1.Router)();
 exports.friendRequestRouter = router;
 router.post('/create', friendRequestController_1.createFriendRequest);
+router.patch('/update', friendRequestController_1.updateFriendRequest);
+router.get('/fetch', friendRequestController_1.fetchFriendRequests);

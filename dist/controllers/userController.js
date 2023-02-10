@@ -87,9 +87,23 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!authToken)
         return;
     try {
-        const user = yield user_1.User.findById(authToken.id);
-        // Fetch friends
+        const user = yield user_1.User.findById(authToken.id).populate('friends', {
+            id: 1,
+            number: 1,
+            name: 1,
+        });
         if (user) {
+            // Set cookie
+            const token = (0, apiTokens_2.signAuthToken)({
+                id: user.id,
+                number: user.number,
+            });
+            res.cookie('auth_token', token, {
+                maxAge: 60 * 60 * 24 * 10 * 1000,
+                httpOnly: true,
+                secure: true,
+                domain: 'api.dinolab.one',
+            });
             res.status(200).json({
                 id: user.id,
                 number: user.number,

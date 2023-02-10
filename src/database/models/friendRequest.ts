@@ -7,6 +7,7 @@ export interface IFriendRequest {
   from_user: Types.ObjectId | string;
   to: string;
   to_user: Types.ObjectId | string;
+  status: string;
 }
 
 // Schemas
@@ -27,6 +28,11 @@ const FriendRequestSchema = new Schema({
   to_user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'accepted', 'rejected'],
     required: true,
   },
 });
