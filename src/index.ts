@@ -8,6 +8,7 @@ import { connectDatabase } from './database';
 
 import { authRouter } from './routes/authRouter';
 import { userRouter } from './routes/userRouter';
+import { friendRequestRouter } from './routes/friendRequestRouter';
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -34,6 +35,9 @@ app.use('/auth', authRouter);
 
 // User routes
 app.use('/user', userRouter);
+
+// Frient Request routes
+app.use('/friend-request', friendRequestRouter);
 
 wss.on('connection', (ws) => {
   ws.on('message', (data) => {

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFriendRequest = exports.filterContacts = exports.fetchUser = exports.createUser = void 0;
+exports.filterContacts = exports.fetchFriends = exports.fetchUser = exports.createUser = void 0;
 const apiTokens_1 = require("../helpers/apiTokens");
 const apiTokens_2 = require("../helpers/apiTokens");
 const user_1 = require("../database/models/user");
@@ -25,7 +25,6 @@ const friendRequest_1 = require("../database/models/friendRequest");
  *
  * @param req Express.Request
  * @param res Express.Response
- * @returns
  */
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const token = req.cookies.signup_token;
@@ -111,6 +110,25 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.fetchUser = fetchUser;
+/**
+ * Fetches user's friends and linked requests.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ * @returns
+ */
+const fetchFriends = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/fetchFriends');
+    if (!authToken)
+        return;
+    try {
+        const requests = friendRequest_1.FriendRequest.find({
+            $or: [{ to: authToken.number }, { from: authToken.number }],
+        });
+    }
+    catch (error) { }
+});
+exports.fetchFriends = fetchFriends;
 const filterContacts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/filterContacts');
     if (!authToken) {
@@ -155,45 +173,3 @@ const filterContacts = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.filterContacts = filterContacts;
-// Creates a friend request.
-// From user (number) to receiver (number)
-const createFriendRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/createFriendRequest');
-    if (!authToken) {
-        return;
-    }
-    const to = req.body.to;
-    if (to && typeof to === 'string') {
-        if (to === authToken.number) {
-            res.status(400).send('Cannot add yourself');
-            return;
-        }
-        try {
-            const checkRequest = yield friendRequest_1.FriendRequest.findOne({
-                from: authToken.number,
-                to: to,
-            });
-            if (checkRequest) {
-                // Refresh the request
-                res.sendStatus(200);
-                return;
-            }
-            const request = yield friendRequest_1.FriendRequest.create({
-                from: authToken.number,
-                to: to,
-            });
-            res
-                .status(200)
-                .send({ id: request.id, from: request.from, to: request.to });
-        }
-        catch (error) {
-            const mongooseError = error;
-            console.log(`UserController/createFriendRequest error: ${mongooseError.name} ${mongooseError.message}`);
-            res.status(500).send(errors_1.APIError.Internal);
-        }
-    }
-    else {
-        res.status(400).send('No receiver provided');
-    }
-});
-exports.createFriendRequest = createFriendRequest;

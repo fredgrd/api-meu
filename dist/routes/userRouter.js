@@ -8,4 +8,3 @@ exports.userRouter = router;
 router.post('/create', userController_1.createUser);
 router.get('/fetch', userController_1.fetchUser);
 router.post('/contacts-filter', userController_1.filterContacts);
-router.post('/create-request', userController_1.createFriendRequest);

@@ -17,6 +17,11 @@ const UserSchema = new mongoose_1.Schema({
     avatar_url: {
         type: String,
         required: true,
+        default: '',
+    },
+    friends: {
+        type: [String],
+        required: true,
     },
     created_at: {
         type: Date,

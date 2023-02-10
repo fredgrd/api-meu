@@ -6,6 +6,7 @@ export interface IUser {
   number: string;
   name: string;
   avatar_url: string;
+  friends: string[];
   created_at?: Date;
 }
 
@@ -23,6 +24,11 @@ const UserSchema = new Schema({
   },
   avatar_url: {
     type: String,
+    required: true,
+    default: '',
+  },
+  friends: {
+    type: [String],
     required: true,
   },
   created_at: {

@@ -8,8 +8,18 @@ const FriendRequestSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
+    from_user: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     to: {
         type: String,
+        required: true,
+    },
+    to_user: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
 });

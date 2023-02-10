@@ -7,4 +7,7 @@ var APIError;
     APIError["Environment"] = "EnvironmentError";
     APIError["Service"] = "ServiceError";
     APIError["Forbidden"] = "ForbiddenAccess";
+    APIError["NoData"] = "NoData";
+    APIError["MissingToken"] = "MissingToken";
+    APIError["TokenInvalid"] = "TokenInvalid";
 })(APIError = exports.APIError || (exports.APIError = {}));

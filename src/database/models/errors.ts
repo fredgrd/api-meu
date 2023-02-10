@@ -3,4 +3,7 @@ export enum APIError {
   Environment = 'EnvironmentError',
   Service = 'ServiceError',
   Forbidden = 'ForbiddenAccess',
+  NoData = 'NoData',
+  MissingToken = 'MissingToken',
+  TokenInvalid = 'TokenInvalid',
 }

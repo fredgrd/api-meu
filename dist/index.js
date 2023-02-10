@@ -11,6 +11,7 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const database_1 = require("./database");
 const authRouter_1 = require("./routes/authRouter");
 const userRouter_1 = require("./routes/userRouter");
+const friendRequestRouter_1 = require("./routes/friendRequestRouter");
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
@@ -29,6 +30,8 @@ app.get('/', (req, res) => {
 app.use('/auth', authRouter_1.authRouter);
 // User routes
 app.use('/user', userRouter_1.userRouter);
+// Frient Request routes
+app.use('/friend-request', friendRequestRouter_1.friendRequestRouter);
 wss.on('connection', (ws) => {
     ws.on('message', (data) => {
         console.log(data.toString());
