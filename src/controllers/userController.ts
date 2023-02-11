@@ -6,7 +6,6 @@ import { User, UserFriendDetails } from '../database/models/user';
 import { APIError } from '../database/models/errors';
 
 import authenticateUser from '../helpers/authenticateUser';
-import { areReducedContact, IReducedContact } from '../database/models/contact';
 import { FriendRequest } from '../database/models/friendRequest';
 
 /**
@@ -151,48 +150,34 @@ export const fetchFriends = async (req: Request, res: Response) => {
   } catch (error) {}
 };
 
-export const filterContacts = async (req: Request, res: Response) => {
-  const authToken = authenticateUser(req, res, 'UserController/filterContacts');
+/**
+ * Parses the user's contacts.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+export const parseUserContacts = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(
+    req,
+    res,
+    'UserController/parseUserContacts'
+  );
 
-  if (!authToken) {
-    return;
-  }
+  if (!authToken) return;
 
-  const contacts: IReducedContact[] | any = req.body.contacts;
+  const contacts: string[] = req.body.contacts;
 
-  if (contacts && areReducedContact(contacts)) {
+  if (contacts) {
     try {
-      const contactNumbers = contacts.map((e) => e.number);
       const users = await User.find({
-        number: { $in: contactNumbers },
-      }).select('number');
+        number: { $in: contacts },
+      }).select({ _id: 0, number: 1 });
 
-      const requests = await FriendRequest.find({
-        from: authToken.number,
-        to: { $in: contactNumbers },
-      });
-      console.log(requests, authToken.number);
-
-      const reducedContacts: IReducedContact[] = [];
-      for (const user of users) {
-        const contact = contacts.find((e) => e.number === user.number);
-        const request = requests.find((e) => e.to === user.number);
-
-        if (contact && request) {
-          contact.is_user = true;
-          contact.friend_request = true;
-          reducedContacts.push(contact);
-        } else if (contact) {
-          contact.is_user = true;
-          reducedContacts.push(contact);
-        }
-      }
-
-      res.status(200).send({ contacts: reducedContacts });
+      res.status(200).json(users.map((e) => e.number));
     } catch (error) {
       const mongooseError = error as MongooseError;
       console.log(
-        `UserController/filterContacts error: ${mongooseError.name} ${mongooseError.message}`
+        `UserController/parseUserContacts error: ${mongooseError.name} ${mongooseError.message}`
       );
       res.status(500).send(APIError.Internal);
     }

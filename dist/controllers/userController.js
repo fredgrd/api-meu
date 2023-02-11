@@ -12,13 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filterContacts = exports.fetchFriends = exports.fetchUser = exports.createUser = void 0;
+exports.parseUserContacts = exports.fetchFriends = exports.fetchUser = exports.createUser = void 0;
 const apiTokens_1 = require("../helpers/apiTokens");
 const apiTokens_2 = require("../helpers/apiTokens");
 const user_1 = require("../database/models/user");
 const errors_1 = require("../database/models/errors");
 const authenticateUser_1 = __importDefault(require("../helpers/authenticateUser"));
-const contact_1 = require("../database/models/contact");
 const friendRequest_1 = require("../database/models/friendRequest");
 /**
  * Creates a user document.
@@ -150,42 +149,27 @@ const fetchFriends = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     catch (error) { }
 });
 exports.fetchFriends = fetchFriends;
-const filterContacts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/filterContacts');
-    if (!authToken) {
+/**
+ * Parses the user's contacts.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+const parseUserContacts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/parseUserContacts');
+    if (!authToken)
         return;
-    }
     const contacts = req.body.contacts;
-    if (contacts && (0, contact_1.areReducedContact)(contacts)) {
+    if (contacts) {
         try {
-            const contactNumbers = contacts.map((e) => e.number);
             const users = yield user_1.User.find({
-                number: { $in: contactNumbers },
-            }).select('number');
-            const requests = yield friendRequest_1.FriendRequest.find({
-                from: authToken.number,
-                to: { $in: contactNumbers },
-            });
-            console.log(requests, authToken.number);
-            const reducedContacts = [];
-            for (const user of users) {
-                const contact = contacts.find((e) => e.number === user.number);
-                const request = requests.find((e) => e.to === user.number);
-                if (contact && request) {
-                    contact.is_user = true;
-                    contact.friend_request = true;
-                    reducedContacts.push(contact);
-                }
-                else if (contact) {
-                    contact.is_user = true;
-                    reducedContacts.push(contact);
-                }
-            }
-            res.status(200).send({ contacts: reducedContacts });
+                number: { $in: contacts },
+            }).select({ _id: 0, number: 1 });
+            res.status(200).json(users.map((e) => e.number));
         }
         catch (error) {
             const mongooseError = error;
-            console.log(`UserController/filterContacts error: ${mongooseError.name} ${mongooseError.message}`);
+            console.log(`UserController/parseUserContacts error: ${mongooseError.name} ${mongooseError.message}`);
             res.status(500).send(errors_1.APIError.Internal);
         }
     }
@@ -193,4 +177,4 @@ const filterContacts = (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(400).send('No contacts provided');
     }
 });
-exports.filterContacts = filterContacts;
+exports.parseUserContacts = parseUserContacts;
