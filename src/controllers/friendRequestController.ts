@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { MongooseError } from 'mongoose';
+import { MongooseError, Types } from 'mongoose';
 import { APIError } from '../database/models/errors';
 import { FriendRequest } from '../database/models/friendRequest';
 import { User } from '../database/models/user';
@@ -50,7 +50,8 @@ export const createFriendRequest = async (req: Request, res: Response) => {
       .select('id name avatar_url friends')
       .orFail();
 
-    if (receiver.friends.includes(authToken.id)) {
+    const friends = receiver.friends as Types.ObjectId[];
+    if (friends.map((e) => String(e._id)).includes(authToken.id)) {
       res.status(400).send(FriendRequestError.AlreadyFriends);
       return;
     }
@@ -132,11 +133,14 @@ export const updateFriendRequest = async (req: Request, res: Response) => {
       const sender = await User.findById(request.from_user).orFail();
       const receiver = await User.findById(request.to_user).orFail();
 
+      const senderFriends = receiver.friends as Types.ObjectId[];
+      const receiverFriends = receiver.friends as Types.ObjectId[];
       if (
-        sender.friends.includes(receiver.id) ||
-        receiver.friends.includes(sender.id)
+        senderFriends.includes(receiver._id) ||
+        receiverFriends.includes(sender._id)
       ) {
         res.status(400).send(FriendRequestError.AlreadyFriends);
+        return;
       }
 
       sender.friends.push(receiver.id);

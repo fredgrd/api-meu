@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { MongooseError } from 'mongoose';
 import { verifySignupToken } from '../helpers/apiTokens';
 import { signAuthToken } from '../helpers/apiTokens';
-import { User } from '../database/models/user';
+import { User, UserFriendDetails } from '../database/models/user';
 import { APIError } from '../database/models/errors';
 
 import authenticateUser from '../helpers/authenticateUser';
@@ -91,8 +91,6 @@ export const fetchUser = async (req: Request, res: Response) => {
       name: 1,
     });
 
-    console.log(user);
-
     if (user) {
       // Set cookie
       const token = signAuthToken({
@@ -107,11 +105,18 @@ export const fetchUser = async (req: Request, res: Response) => {
         domain: 'api.dinolab.one',
       });
 
+      const userFriends = user.friends as UserFriendDetails[];
+
       res.status(200).json({
         id: user.id,
         number: user.number,
         name: user.name,
         avatar_url: user.avatar_url,
+        friends: userFriends.map((e) => ({
+          id: e._id,
+          number: e.number,
+          name: e.name,
+        })),
         created_at: user.created_at,
       });
       return;

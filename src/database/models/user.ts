@@ -6,8 +6,14 @@ export interface IUser {
   number: string;
   name: string;
   avatar_url: string;
-  friends: string[];
+  friends: Types.ObjectId[] | UserFriendDetails[];
   created_at?: Date;
+}
+
+export interface UserFriendDetails {
+  _id: String;
+  number: String;
+  name: String;
 }
 
 // Schemas

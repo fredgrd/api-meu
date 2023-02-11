@@ -93,7 +93,6 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             number: 1,
             name: 1,
         });
-        console.log(user);
         if (user) {
             // Set cookie
             const token = (0, apiTokens_2.signAuthToken)({
@@ -106,11 +105,17 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 secure: true,
                 domain: 'api.dinolab.one',
             });
+            const userFriends = user.friends;
             res.status(200).json({
                 id: user.id,
                 number: user.number,
                 name: user.name,
                 avatar_url: user.avatar_url,
+                friends: userFriends.map((e) => ({
+                    id: e._id,
+                    number: e.number,
+                    name: e.name,
+                })),
                 created_at: user.created_at,
             });
             return;

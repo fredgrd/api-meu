@@ -52,7 +52,8 @@ const createFriendRequest = (req, res) => __awaiter(void 0, void 0, void 0, func
         const receiver = yield user_1.User.findOne({ number: to })
             .select('id name avatar_url friends')
             .orFail();
-        if (receiver.friends.includes(authToken.id)) {
+        const friends = receiver.friends;
+        if (friends.map((e) => String(e._id)).includes(authToken.id)) {
             res.status(400).send(FriendRequestError.AlreadyFriends);
             return;
         }
@@ -119,9 +120,12 @@ const updateFriendRequest = (req, res) => __awaiter(void 0, void 0, void 0, func
         if (update === 'accept') {
             const sender = yield user_1.User.findById(request.from_user).orFail();
             const receiver = yield user_1.User.findById(request.to_user).orFail();
-            if (sender.friends.includes(receiver.id) ||
-                receiver.friends.includes(sender.id)) {
+            const senderFriends = receiver.friends;
+            const receiverFriends = receiver.friends;
+            if (senderFriends.includes(receiver._id) ||
+                receiverFriends.includes(sender._id)) {
                 res.status(400).send(FriendRequestError.AlreadyFriends);
+                return;
             }
             sender.friends.push(receiver.id);
             receiver.friends.push(sender.id);
