@@ -41,7 +41,7 @@ export class TwilioService {
       try {
         const attempt = await this.client.verify.v2
           .services(serviceSid)
-          .verifications.create({ to: number, channel: 'sms' });
+          .verifications.create({ to: number, channel: 'sms', locale: 'en' });
 
         if (attempt.status === 'pending') {
           console.log(`Verification attempt started for: ${number}`);
