@@ -4,7 +4,7 @@ import { APIError } from '../database/models/errors';
 import { TwilioService } from '../services/twilioService';
 import { Twilio } from 'twilio';
 
-import { User } from '../database/models/user';
+import { User, UserFriendDetails } from '../database/models/user';
 
 import { signSignupToken } from '../helpers/apiTokens';
 import { signAuthToken } from '../helpers/apiTokens';
@@ -74,7 +74,13 @@ export const completeVerificationCheck = async (
   }
 
   try {
-    const user = await User.findOne({ number: number }).orFail();
+    const user = await User.findOne({ number: number })
+      .populate('friends', {
+        id: 1,
+        number: 1,
+        name: 1,
+      })
+      .orFail();
 
     // Set cookie
     const token = signAuthToken({
@@ -89,12 +95,19 @@ export const completeVerificationCheck = async (
       domain: 'api.dinolab.one',
     });
 
+    const userFriends = user.friends as UserFriendDetails[];
+
     res.status(200).json({
       user: {
         id: user.id,
         number: user.number,
         name: user.name,
         avatar_url: user.avatar_url,
+        friends: userFriends.map((e) => ({
+          id: e._id,
+          number: e.number,
+          name: e.name,
+        })),
         created_at: user.created_at,
       },
       new_user: false,

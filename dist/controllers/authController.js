@@ -66,7 +66,13 @@ const completeVerificationCheck = (req, res) => __awaiter(void 0, void 0, void 0
             return;
     }
     try {
-        const user = yield user_1.User.findOne({ number: number }).orFail();
+        const user = yield user_1.User.findOne({ number: number })
+            .populate('friends', {
+            id: 1,
+            number: 1,
+            name: 1,
+        })
+            .orFail();
         // Set cookie
         const token = (0, apiTokens_2.signAuthToken)({
             id: user.id,
@@ -78,12 +84,18 @@ const completeVerificationCheck = (req, res) => __awaiter(void 0, void 0, void 0
             secure: true,
             domain: 'api.dinolab.one',
         });
+        const userFriends = user.friends;
         res.status(200).json({
             user: {
                 id: user.id,
                 number: user.number,
                 name: user.name,
                 avatar_url: user.avatar_url,
+                friends: userFriends.map((e) => ({
+                    id: e._id,
+                    number: e.number,
+                    name: e.name,
+                })),
                 created_at: user.created_at,
             },
             new_user: false,
