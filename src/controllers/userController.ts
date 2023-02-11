@@ -61,6 +61,7 @@ export const createUser = async (req: Request, res: Response) => {
       number: user.number,
       name: user.name,
       avatar_url: user.avatar_url,
+      friends: [],
       created_at: user.created_at,
     });
   } catch (error) {
@@ -89,6 +90,8 @@ export const fetchUser = async (req: Request, res: Response) => {
       number: 1,
       name: 1,
     });
+
+    console.log(user);
 
     if (user) {
       // Set cookie
