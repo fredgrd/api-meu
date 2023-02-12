@@ -57,7 +57,7 @@ export const fetchRooms = async (req: Request, res: Response) => {
 
   if (!authToken) return;
 
-  const userID: string | any = req.body.user_id;
+  const userID: string | any = req.query.user_id;
 
   if (typeof userID !== 'string') {
     res.status(400).send(APIError.NoData);

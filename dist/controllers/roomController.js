@@ -62,7 +62,7 @@ const fetchRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const authToken = (0, authenticateUser_1.default)(req, res, 'RoomController/fetchRooms');
     if (!authToken)
         return;
-    const userID = req.body.user_id;
+    const userID = req.query.user_id;
     if (typeof userID !== 'string') {
         res.status(400).send(errors_1.APIError.NoData);
         return;
