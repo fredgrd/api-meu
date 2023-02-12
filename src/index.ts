@@ -9,6 +9,7 @@ import { connectDatabase } from './database';
 import { authRouter } from './routes/authRouter';
 import { userRouter } from './routes/userRouter';
 import { friendRequestRouter } from './routes/friendRequestRouter';
+import { roomRouter } from './routes/roomRouter';
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -38,6 +39,9 @@ app.use('/user', userRouter);
 
 // Frient Request routes
 app.use('/friend-request', friendRequestRouter);
+
+// Room routes
+app.use('/room', roomRouter);
 
 wss.on('connection', (ws) => {
   ws.on('message', (data) => {

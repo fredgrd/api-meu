@@ -12,6 +12,7 @@ const database_1 = require("./database");
 const authRouter_1 = require("./routes/authRouter");
 const userRouter_1 = require("./routes/userRouter");
 const friendRequestRouter_1 = require("./routes/friendRequestRouter");
+const roomRouter_1 = require("./routes/roomRouter");
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
@@ -32,6 +33,8 @@ app.use('/auth', authRouter_1.authRouter);
 app.use('/user', userRouter_1.userRouter);
 // Frient Request routes
 app.use('/friend-request', friendRequestRouter_1.friendRequestRouter);
+// Room routes
+app.use('/room', roomRouter_1.roomRouter);
 wss.on('connection', (ws) => {
     ws.on('message', (data) => {
         console.log(data.toString());
