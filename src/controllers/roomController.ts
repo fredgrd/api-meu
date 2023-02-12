@@ -107,7 +107,7 @@ export const fetchMessages = async (req: Request, res: Response) => {
   try {
     const room = await Room.findById(roomID)
       .select('messages')
-      .populate('messages.sender', { name: 1, number: 1 })
+      .populate('messages.sender', { name: 1, number: 1, avatar_url: 1 })
       .orFail();
 
     const messages = room.messages.map((message) => {
@@ -117,6 +117,7 @@ export const fetchMessages = async (req: Request, res: Response) => {
         sender: userDetails._id,
         sender_name: userDetails.name,
         sender_number: userDetails.number,
+        sender_thumbnail: userDetails.avatar_url,
         message: message.message,
         timestamp: message.timestamp,
       };

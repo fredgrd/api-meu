@@ -14,6 +14,7 @@ export interface IRoomMessageUserDetails {
   _id: Types.ObjectId;
   name: string;
   number: string;
+  avatar_url: string;
 }
 
 export interface IRoomMessage {
