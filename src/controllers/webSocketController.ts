@@ -20,8 +20,6 @@ const isRoomMessage = (message: any): message is IRoomMessage => {
 export const wsOnConnection = async (ws: IRoomWebSocket, req: Request) => {
   const roomID: string | null = parse(req.url).query;
 
-  console.log('RECEIVED WSCONNECTION', roomID);
-
   if (typeof roomID === 'string') {
     ws.room_id = roomID;
   } else {
@@ -31,24 +29,31 @@ export const wsOnConnection = async (ws: IRoomWebSocket, req: Request) => {
   }
 
   ws.on('message', async (data) => {
-    console.log('RECEIVED WSMESSAGE');
     const dataString = data.toString();
-    let message: IRoomMessage | any = JSON.parse(dataString);
-
-    console.log('MESSAGE DATA', dataString, data, message);
+    const message: IRoomMessage | any = JSON.parse(dataString);
 
     if (isRoomMessage(message)) {
       // Save to database
       const room = await Room.findByIdAndUpdate(
         ws.room_id,
-        { $push: { messages: message } },
+        {
+          $push: {
+            messages: { sender: message.sender, message: message.message },
+          },
+        },
         { safe: true, new: true }
       ).catch((e) => {
         logMongooseError(e, 'webSocketController/onMessage');
         return;
       });
 
-      message = room?.messages[room?.messages.length - 1];
+      let updatedMessage = room?.messages[room?.messages.length - 1];
+
+      if (updatedMessage) {
+        updatedMessage.sender_name = message.sender_name;
+        updatedMessage.sender_number = message.sender_number;
+        updatedMessage.sender_thumbnail = message.sender_thumbnail;
+      }
 
       wss.clients.forEach((wsClient) => {
         const client = wsClient as IRoomWebSocket;
@@ -57,7 +62,7 @@ export const wsOnConnection = async (ws: IRoomWebSocket, req: Request) => {
           client.room_id === ws.room_id &&
           client.readyState === WebSocket.OPEN
         ) {
-          client.send(JSON.stringify(message));
+          client.send(JSON.stringify(updatedMessage));
         }
       });
     }

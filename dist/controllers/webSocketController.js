@@ -21,7 +21,6 @@ const isRoomMessage = (message) => {
 };
 const wsOnConnection = (ws, req) => __awaiter(void 0, void 0, void 0, function* () {
     const roomID = (0, url_1.parse)(req.url).query;
-    console.log('RECEIVED WSCONNECTION', roomID);
     if (typeof roomID === 'string') {
         ws.room_id = roomID;
     }
@@ -31,23 +30,30 @@ const wsOnConnection = (ws, req) => __awaiter(void 0, void 0, void 0, function* 
         return;
     }
     ws.on('message', (data) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('RECEIVED WSMESSAGE');
         const dataString = data.toString();
-        let message = JSON.parse(dataString);
-        console.log('MESSAGE DATA', dataString, data, message);
+        const message = JSON.parse(dataString);
         if (isRoomMessage(message)) {
             // Save to database
-            const room = yield room_1.Room.findByIdAndUpdate(ws.room_id, { $push: { messages: message } }, { safe: true, new: true }).catch((e) => {
+            const room = yield room_1.Room.findByIdAndUpdate(ws.room_id, {
+                $push: {
+                    messages: { sender: message.sender, message: message.message },
+                },
+            }, { safe: true, new: true }).catch((e) => {
                 (0, logError_1.logMongooseError)(e, 'webSocketController/onMessage');
                 return;
             });
-            message = room === null || room === void 0 ? void 0 : room.messages[(room === null || room === void 0 ? void 0 : room.messages.length) - 1];
+            let updatedMessage = room === null || room === void 0 ? void 0 : room.messages[(room === null || room === void 0 ? void 0 : room.messages.length) - 1];
+            if (updatedMessage) {
+                updatedMessage.sender_name = message.sender_name;
+                updatedMessage.sender_number = message.sender_number;
+                updatedMessage.sender_thumbnail = message.sender_thumbnail;
+            }
             index_1.wss.clients.forEach((wsClient) => {
                 const client = wsClient;
                 if (client !== ws &&
                     client.room_id === ws.room_id &&
                     client.readyState === ws_1.WebSocket.OPEN) {
-                    client.send(JSON.stringify(message));
+                    client.send(JSON.stringify(updatedMessage));
                 }
             });
         }

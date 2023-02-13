@@ -22,6 +22,7 @@ export interface IRoomMessage {
   sender: IRoomMessageUserDetails | string;
   sender_name?: string;
   sender_number?: string;
+  sender_thumbnail?: string;
   message: string;
   timestamp?: Date;
 }
