@@ -42,18 +42,21 @@ const wsOnConnection = (ws, req) => __awaiter(void 0, void 0, void 0, function* 
                 (0, logError_1.logMongooseError)(e, 'webSocketController/onMessage');
                 return;
             });
-            let updatedMessage = room === null || room === void 0 ? void 0 : room.messages[(room === null || room === void 0 ? void 0 : room.messages.length) - 1];
-            if (updatedMessage) {
-                updatedMessage.sender_name = message.sender_name;
-                updatedMessage.sender_number = message.sender_number;
-                updatedMessage.sender_thumbnail = message.sender_thumbnail;
-            }
+            const savedMessage = room === null || room === void 0 ? void 0 : room.messages[(room === null || room === void 0 ? void 0 : room.messages.length) - 1];
             index_1.wss.clients.forEach((wsClient) => {
                 const client = wsClient;
                 if (client !== ws &&
                     client.room_id === ws.room_id &&
                     client.readyState === ws_1.WebSocket.OPEN) {
-                    client.send(JSON.stringify(updatedMessage));
+                    client.send(JSON.stringify({
+                        id: savedMessage === null || savedMessage === void 0 ? void 0 : savedMessage._id,
+                        sender: message.sender,
+                        sender_name: message.sender_name,
+                        sender_number: message.sender_number,
+                        sender_thumbnail: message.sender_thumbnail,
+                        message: message.message,
+                        timestampt: savedMessage === null || savedMessage === void 0 ? void 0 : savedMessage.timestamp,
+                    }));
                 }
             });
         }

@@ -47,13 +47,7 @@ export const wsOnConnection = async (ws: IRoomWebSocket, req: Request) => {
         return;
       });
 
-      let updatedMessage = room?.messages[room?.messages.length - 1];
-
-      if (updatedMessage) {
-        updatedMessage.sender_name = message.sender_name;
-        updatedMessage.sender_number = message.sender_number;
-        updatedMessage.sender_thumbnail = message.sender_thumbnail;
-      }
+      const savedMessage = room?.messages[room?.messages.length - 1];
 
       wss.clients.forEach((wsClient) => {
         const client = wsClient as IRoomWebSocket;
@@ -62,7 +56,17 @@ export const wsOnConnection = async (ws: IRoomWebSocket, req: Request) => {
           client.room_id === ws.room_id &&
           client.readyState === WebSocket.OPEN
         ) {
-          client.send(JSON.stringify(updatedMessage));
+          client.send(
+            JSON.stringify({
+              id: savedMessage?._id,
+              sender: message.sender,
+              sender_name: message.sender_name,
+              sender_number: message.sender_number,
+              sender_thumbnail: message.sender_thumbnail,
+              message: message.message,
+              timestampt: savedMessage?.timestamp,
+            })
+          );
         }
       });
     }
