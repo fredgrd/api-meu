@@ -10,6 +10,7 @@ import { authRouter } from './routes/authRouter';
 import { userRouter } from './routes/userRouter';
 import { friendRequestRouter } from './routes/friendRequestRouter';
 import { roomRouter } from './routes/roomRouter';
+import { wsOnConnection } from './controllers/webSocketController';
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -17,7 +18,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 const app: Express = express();
 const server: Server = http.createServer(app);
-const wss: WSServer = new WebSocketServer({ server });
+export const wss: WSServer = new WebSocketServer({
+  server,
+  path: '/websockets/room',
+});
 
 // Connect database
 connectDatabase();
@@ -43,18 +47,27 @@ app.use('/friend-request', friendRequestRouter);
 // Room routes
 app.use('/room', roomRouter);
 
-wss.on('connection', (ws) => {
-  ws.on('message', (data) => {
-    console.log(data.toString());
+wss.on('connection', wsOnConnection);
 
-    wss.clients.forEach((client) => {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(data.toString());
-      }
-    });
-  });
-});
+// (ws) => {
+//   const extWs = ws as ExtWebSocket;
+//   extWs.on('message', (data) => {
+//     const body = JSON.parse(data.toString());
+
+//     extWs.room_id = String(Math.random());
+
+//     wss.clients.forEach((client) => {
+//       const extClient = client as ExtWebSocket;
+
+//       console.log('CLIENT ROOM', extClient.room_id);
+
+//       if (client !== extWs && client.readyState === WebSocket.OPEN) {
+//         client.send(data.toString());
+//       }
+//     });
+//   });
+// });
 
 server.listen(process.env.PORT, () => {
-  console.log('Server is listening on port 3000');
+  console.log(`Server is listening on port ${process.env.PORT}`);
 });
