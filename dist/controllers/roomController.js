@@ -93,7 +93,7 @@ const fetchMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const authToken = (0, authenticateUser_1.default)(req, res, 'RoomController/fetchMessages');
     if (!authToken)
         return;
-    const roomID = req.body.room_id;
+    const roomID = req.query.room_id;
     if (typeof roomID !== 'string') {
         res.status(400).send(errors_1.APIError.NoData);
         return;

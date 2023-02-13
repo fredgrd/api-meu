@@ -97,7 +97,7 @@ export const fetchMessages = async (req: Request, res: Response) => {
 
   if (!authToken) return;
 
-  const roomID: string | any = req.body.room_id;
+  const roomID: string | any = req.query.room_id;
 
   if (typeof roomID !== 'string') {
     res.status(400).send(APIError.NoData);
