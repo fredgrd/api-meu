@@ -21,6 +21,7 @@ const isRoomMessage = (message) => {
 };
 const wsOnConnection = (ws, req) => __awaiter(void 0, void 0, void 0, function* () {
     const roomID = (0, url_1.parse)(req.url).query;
+    console.log('RECEIVED WSCONNECTION', roomID);
     if (typeof roomID === 'string') {
         ws.room_id = roomID;
     }
@@ -30,8 +31,10 @@ const wsOnConnection = (ws, req) => __awaiter(void 0, void 0, void 0, function* 
         return;
     }
     ws.on('message', (data) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('RECEIVED WSMESSAGE');
         const dataString = data.toString();
         let message = JSON.parse(dataString);
+        console.log('MESSAGE DATA', dataString, data, message);
         if (isRoomMessage(message)) {
             // Save to database
             const room = yield room_1.Room.findByIdAndUpdate(ws.room_id, { $push: { messages: message } }, { safe: true, new: true }).catch((e) => {

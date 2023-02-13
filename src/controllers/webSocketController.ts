@@ -20,6 +20,8 @@ const isRoomMessage = (message: any): message is IRoomMessage => {
 export const wsOnConnection = async (ws: IRoomWebSocket, req: Request) => {
   const roomID: string | null = parse(req.url).query;
 
+  console.log('RECEIVED WSCONNECTION', roomID);
+
   if (typeof roomID === 'string') {
     ws.room_id = roomID;
   } else {
@@ -29,8 +31,11 @@ export const wsOnConnection = async (ws: IRoomWebSocket, req: Request) => {
   }
 
   ws.on('message', async (data) => {
+    console.log('RECEIVED WSMESSAGE');
     const dataString = data.toString();
     let message: IRoomMessage | any = JSON.parse(dataString);
+
+    console.log('MESSAGE DATA', dataString, data, message);
 
     if (isRoomMessage(message)) {
       // Save to database
