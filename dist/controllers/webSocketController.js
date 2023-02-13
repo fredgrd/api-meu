@@ -55,7 +55,7 @@ const wsOnConnection = (ws, req) => __awaiter(void 0, void 0, void 0, function* 
                         sender_number: message.sender_number,
                         sender_thumbnail: message.sender_thumbnail,
                         message: message.message,
-                        timestampt: savedMessage === null || savedMessage === void 0 ? void 0 : savedMessage.timestamp,
+                        timestamp: savedMessage === null || savedMessage === void 0 ? void 0 : savedMessage.timestamp,
                     }));
                 }
             });

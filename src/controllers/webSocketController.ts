@@ -64,7 +64,7 @@ export const wsOnConnection = async (ws: IRoomWebSocket, req: Request) => {
               sender_number: message.sender_number,
               sender_thumbnail: message.sender_thumbnail,
               message: message.message,
-              timestampt: savedMessage?.timestamp,
+              timestamp: savedMessage?.timestamp,
             })
           );
         }
