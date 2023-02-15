@@ -6,5 +6,6 @@ const roomController_1 = require("../controllers/roomController");
 const router = (0, express_1.Router)();
 exports.roomRouter = router;
 router.post('/create', roomController_1.createRoom);
+router.patch('/delete', roomController_1.deleteRoom);
 router.get('/rooms/fetch', roomController_1.fetchRooms);
 router.get('/messages', roomController_1.fetchMessages);

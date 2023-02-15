@@ -53,6 +53,41 @@ export const createRoom = async (req: Request, res: Response) => {
 };
 
 /**
+ * Delets a user's room.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+export const deleteRoom = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'RoomController/deleteRoom');
+
+  if (!authToken) return;
+
+  const roomID: string | any = req.body.room_id;
+
+  if (typeof roomID !== 'string') {
+    res.status(400).send(APIError.NoData);
+    return;
+  }
+
+  try {
+    const result = await Room.deleteOne({ _id: roomID, user: authToken.id });
+
+    if (result.acknowledged) {
+      res.status(200).send('OK');
+    } else {
+      res.status(500).send(APIError.Internal);
+    }
+  } catch (error) {
+    const mongooseError = error as MongooseError;
+    console.log(
+      `RoomController/deleteRoom error: ${mongooseError.name} ${mongooseError.message}`
+    );
+    res.status(500).send(APIError.Internal);
+  }
+};
+
+/**
  * Fetches all the users room.
  *
  * @param req Express.Request
