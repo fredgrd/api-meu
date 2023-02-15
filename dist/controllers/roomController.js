@@ -37,6 +37,12 @@ const createRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             user: authToken.id,
             name: name,
             description: description,
+            messages: [
+                {
+                    sender: authToken.id,
+                    message: description,
+                },
+            ],
         });
         res.status(200).json({
             id: room.id,

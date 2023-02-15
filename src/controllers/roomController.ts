@@ -29,6 +29,12 @@ export const createRoom = async (req: Request, res: Response) => {
       user: authToken.id,
       name: name,
       description: description,
+      messages: [
+        {
+          sender: authToken.id,
+          message: description,
+        },
+      ],
     });
 
     res.status(200).json({
