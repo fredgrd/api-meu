@@ -27,6 +27,11 @@ export interface IRoomMessage {
   timestamp?: Date;
 }
 
+export interface IRoomUpdate {
+  kind: string;
+  sender_name: string;
+}
+
 // Schemas
 const RoomMessageSchema = new Schema<IRoomMessage>({
   sender: {
