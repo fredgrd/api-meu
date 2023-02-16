@@ -12,13 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseUserContacts = exports.fetchFriends = exports.updateStatus = exports.fetchUser = exports.createUser = void 0;
+exports.parseUserContacts = exports.fetchFriendDetails = exports.updateStatus = exports.fetchUser = exports.createUser = void 0;
 const apiTokens_1 = require("../helpers/apiTokens");
 const apiTokens_2 = require("../helpers/apiTokens");
 const user_1 = require("../database/models/user");
 const errors_1 = require("../database/models/errors");
 const authenticateUser_1 = __importDefault(require("../helpers/authenticateUser"));
-const friendRequest_1 = require("../database/models/friendRequest");
 /**
  * Creates a user document.
  *
@@ -186,18 +185,28 @@ exports.updateStatus = updateStatus;
  * @param res Express.Response
  * @returns
  */
-const fetchFriends = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const fetchFriendDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/fetchFriends');
     if (!authToken)
         return;
-    try {
-        const requests = friendRequest_1.FriendRequest.find({
-            $or: [{ to: authToken.number }, { from: authToken.number }],
-        });
+    const friendID = req.query.friend_id;
+    if (typeof friendID !== 'string') {
+        res.status(400).send(errors_1.APIError.NoData);
+        return;
     }
-    catch (error) { }
+    try {
+        const user = yield user_1.User.findById(friendID)
+            .select('status avatar_url')
+            .orFail();
+        res.status(200).json({ status: user.status, avatar_url: user.avatar_url });
+    }
+    catch (error) {
+        const mongooseError = error;
+        console.log(`UserController/fetchFriendDatails error: ${mongooseError.name} ${mongooseError.message}`);
+        res.status(500).send(errors_1.APIError.Internal);
+    }
 });
-exports.fetchFriends = fetchFriends;
+exports.fetchFriendDetails = fetchFriendDetails;
 /**
  * Parses the user's contacts.
  *

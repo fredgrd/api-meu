@@ -197,16 +197,31 @@ export const updateStatus = async (req: Request, res: Response) => {
  * @param res Express.Response
  * @returns
  */
-export const fetchFriends = async (req: Request, res: Response) => {
+export const fetchFriendDetails = async (req: Request, res: Response) => {
   const authToken = authenticateUser(req, res, 'UserController/fetchFriends');
 
   if (!authToken) return;
 
+  const friendID: string | any = req.query.friend_id;
+
+  if (typeof friendID !== 'string') {
+    res.status(400).send(APIError.NoData);
+    return;
+  }
+
   try {
-    const requests = FriendRequest.find({
-      $or: [{ to: authToken.number }, { from: authToken.number }],
-    });
-  } catch (error) {}
+    const user = await User.findById(friendID)
+      .select('status avatar_url')
+      .orFail();
+
+    res.status(200).json({ status: user.status, avatar_url: user.avatar_url });
+  } catch (error) {
+    const mongooseError = error as MongooseError;
+    console.log(
+      `UserController/fetchFriendDatails error: ${mongooseError.name} ${mongooseError.message}`
+    );
+    res.status(500).send(APIError.Internal);
+  }
 };
 
 /**
