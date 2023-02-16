@@ -150,7 +150,13 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const user = yield user_1.User.findByIdAndUpdate(authToken.id, {
             status: status,
-        }, { new: true }).orFail();
+        }, { new: true })
+            .populate('friends', {
+            id: 1,
+            number: 1,
+            name: 1,
+        })
+            .orFail();
         const userFriends = user.friends;
         res.status(200).json({
             id: user.id,

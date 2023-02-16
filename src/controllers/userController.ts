@@ -158,7 +158,13 @@ export const updateStatus = async (req: Request, res: Response) => {
         status: status,
       },
       { new: true }
-    ).orFail();
+    )
+      .populate('friends', {
+        id: 1,
+        number: 1,
+        name: 1,
+      })
+      .orFail();
 
     const userFriends = user.friends as UserFriendDetails[];
 
