@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseUserContacts = exports.fetchFriends = exports.fetchUser = exports.createUser = void 0;
+exports.parseUserContacts = exports.fetchFriends = exports.updateStatus = exports.fetchUser = exports.createUser = void 0;
 const apiTokens_1 = require("../helpers/apiTokens");
 const apiTokens_2 = require("../helpers/apiTokens");
 const user_1 = require("../database/models/user");
@@ -63,6 +63,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             number: user.number,
             name: user.name,
             avatar_url: user.avatar_url,
+            status: user.status,
             friends: [],
             created_at: user.created_at,
         });
@@ -110,6 +111,7 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 number: user.number,
                 name: user.name,
                 avatar_url: user.avatar_url,
+                status: user.status,
                 friends: userFriends.map((e) => ({
                     id: e._id,
                     number: e.number,
@@ -117,7 +119,6 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 })),
                 created_at: user.created_at,
             });
-            return;
         }
         else {
             res.status(400).send('User not found');
@@ -130,6 +131,48 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.fetchUser = fetchUser;
+/**
+ * Update the user's status.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ * @returns
+ */
+const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/fetchFriends');
+    if (!authToken)
+        return;
+    const status = req.body.status;
+    if (typeof status !== 'string') {
+        res.status(400).send(errors_1.APIError.NoData);
+        return;
+    }
+    try {
+        const user = yield user_1.User.findByIdAndUpdate(authToken.id, {
+            status: status,
+        }, { new: true }).orFail();
+        const userFriends = user.friends;
+        res.status(200).json({
+            id: user.id,
+            number: user.number,
+            name: user.name,
+            avatar_url: user.avatar_url,
+            status: user.status,
+            friends: userFriends.map((e) => ({
+                id: e._id,
+                number: e.number,
+                name: e.name,
+            })),
+            created_at: user.created_at,
+        });
+    }
+    catch (error) {
+        const mongooseError = error;
+        console.log(`UserController/updateStatus error: ${mongooseError.name} ${mongooseError.message}`);
+        res.status(500).send(errors_1.APIError.Internal);
+    }
+});
+exports.updateStatus = updateStatus;
 /**
  * Fetches user's friends and linked requests.
  *

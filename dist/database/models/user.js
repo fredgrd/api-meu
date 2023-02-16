@@ -19,6 +19,11 @@ const UserSchema = new mongoose_1.Schema({
         required: true,
         default: '',
     },
+    status: {
+        type: String,
+        required: true,
+        default: '👋',
+    },
     friends: {
         type: [mongoose_1.Schema.Types.ObjectId],
         ref: 'User',

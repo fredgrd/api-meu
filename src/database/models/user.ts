@@ -6,6 +6,7 @@ export interface IUser {
   number: string;
   name: string;
   avatar_url: string;
+  status?: string;
   friends: Types.ObjectId[] | UserFriendDetails[];
   created_at?: Date;
 }
@@ -32,6 +33,11 @@ const UserSchema = new Schema({
     type: String,
     required: true,
     default: '',
+  },
+  status: {
+    type: String,
+    required: true,
+    default: '👋',
   },
   friends: {
     type: [Schema.Types.ObjectId],

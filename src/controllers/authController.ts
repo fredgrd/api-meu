@@ -103,6 +103,7 @@ export const completeVerificationCheck = async (
         number: user.number,
         name: user.name,
         avatar_url: user.avatar_url,
+        status: user.status,
         friends: userFriends.map((e) => ({
           id: e._id,
           number: e.number,

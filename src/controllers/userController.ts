@@ -60,6 +60,7 @@ export const createUser = async (req: Request, res: Response) => {
       number: user.number,
       name: user.name,
       avatar_url: user.avatar_url,
+      status: user.status,
       friends: [],
       created_at: user.created_at,
     });
@@ -111,6 +112,7 @@ export const fetchUser = async (req: Request, res: Response) => {
         number: user.number,
         name: user.name,
         avatar_url: user.avatar_url,
+        status: user.status,
         friends: userFriends.map((e) => ({
           id: e._id,
           number: e.number,
@@ -118,7 +120,6 @@ export const fetchUser = async (req: Request, res: Response) => {
         })),
         created_at: user.created_at,
       });
-      return;
     } else {
       res.status(400).send('User not found');
     }
@@ -126,6 +127,58 @@ export const fetchUser = async (req: Request, res: Response) => {
     const mongooseError = error as MongooseError;
     console.log(
       `UserController/fetchUser error: ${mongooseError.name} ${mongooseError.message}`
+    );
+    res.status(500).send(APIError.Internal);
+  }
+};
+
+/**
+ * Update the user's status.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ * @returns
+ */
+export const updateStatus = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'UserController/fetchFriends');
+
+  if (!authToken) return;
+
+  const status: string | any = req.body.status;
+
+  if (typeof status !== 'string') {
+    res.status(400).send(APIError.NoData);
+    return;
+  }
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      authToken.id,
+      {
+        status: status,
+      },
+      { new: true }
+    ).orFail();
+
+    const userFriends = user.friends as UserFriendDetails[];
+
+    res.status(200).json({
+      id: user.id,
+      number: user.number,
+      name: user.name,
+      avatar_url: user.avatar_url,
+      status: user.status,
+      friends: userFriends.map((e) => ({
+        id: e._id,
+        number: e.number,
+        name: e.name,
+      })),
+      created_at: user.created_at,
+    });
+  } catch (error) {
+    const mongooseError = error as MongooseError;
+    console.log(
+      `UserController/updateStatus error: ${mongooseError.name} ${mongooseError.message}`
     );
     res.status(500).send(APIError.Internal);
   }
