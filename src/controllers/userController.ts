@@ -133,6 +133,64 @@ export const fetchUser = async (req: Request, res: Response) => {
 };
 
 /**
+ * Update the user's avatar.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ * @returns
+ */
+export const updateAvatar = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'UserController/updateAvatar');
+
+  if (!authToken) return;
+
+  const url: string | any = req.body.avatar_url;
+
+  if (typeof url !== 'string') {
+    res.status(400).send(APIError.NoData);
+    return;
+  }
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      authToken.id,
+      {
+        avatar_url: url,
+      },
+      { new: true }
+    )
+      .populate('friends', {
+        id: 1,
+        number: 1,
+        name: 1,
+      })
+      .orFail();
+
+    const userFriends = user.friends as UserFriendDetails[];
+
+    res.status(200).json({
+      id: user.id,
+      number: user.number,
+      name: user.name,
+      avatar_url: user.avatar_url,
+      status: user.status,
+      friends: userFriends.map((e) => ({
+        id: e._id,
+        number: e.number,
+        name: e.name,
+      })),
+      created_at: user.created_at,
+    });
+  } catch (error) {
+    const mongooseError = error as MongooseError;
+    console.log(
+      `UserController/updateAvatar error: ${mongooseError.name} ${mongooseError.message}`
+    );
+    res.status(500).send(APIError.Internal);
+  }
+};
+
+/**
  * Update the user's status.
  *
  * @param req Express.Request
@@ -140,7 +198,7 @@ export const fetchUser = async (req: Request, res: Response) => {
  * @returns
  */
 export const updateStatus = async (req: Request, res: Response) => {
-  const authToken = authenticateUser(req, res, 'UserController/fetchFriends');
+  const authToken = authenticateUser(req, res, 'UserController/updateStatus');
 
   if (!authToken) return;
 

@@ -4,6 +4,7 @@ import {
   fetchFriendDetails,
   fetchUser,
   parseUserContacts,
+  updateAvatar,
   updateStatus,
 } from '../controllers/userController';
 
@@ -14,6 +15,8 @@ router.post('/create', createUser);
 router.get('/fetch', fetchUser);
 
 router.patch('/update-status', updateStatus);
+
+router.patch('/update-avatar', updateAvatar);
 
 router.get('/fetch-friend', fetchFriendDetails);
 
