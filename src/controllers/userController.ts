@@ -288,6 +288,64 @@ export const fetchFriendDetails = async (req: Request, res: Response) => {
 };
 
 /**
+ * Delete a friend from the user's friends list.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ * @returns
+ */
+export const deleteFriend = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'UserController/deleteFriend');
+
+  if (!authToken) return;
+
+  const friendID: string | any = req.body.friend_id;
+
+  if (typeof friendID !== 'string') {
+    res.status(400).send(APIError.NoData);
+    return;
+  }
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      authToken.id,
+      { $pull: { friends: friendID } },
+      { new: true }
+    )
+      .populate('friends', {
+        id: 1,
+        number: 1,
+        name: 1,
+        avatar_url: 1,
+      })
+      .orFail();
+
+    const userFriends = user.friends as UserFriendDetails[];
+
+    res.status(200).json({
+      id: user.id,
+      number: user.number,
+      name: user.name,
+      avatar_url: user.avatar_url,
+      status: user.status,
+      friends: userFriends.map((e) => ({
+        id: e._id,
+        number: e.number,
+        name: e.name,
+        avatar_url: e.avatar_url,
+      })),
+      created_at: user.created_at,
+    });
+  } catch (error) {
+    const mongooseError = error as MongooseError;
+    console.log(
+      `UserController/deleteFriend error: ${mongooseError.name} ${mongooseError.message}`
+    );
+    res.status(500).send(APIError.Internal);
+  }
+};
+
+/**
  * Parses the user's contacts.
  *
  * @param req Express.Request
