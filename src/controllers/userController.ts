@@ -307,6 +307,10 @@ export const deleteFriend = async (req: Request, res: Response) => {
   }
 
   try {
+    await User.findByIdAndUpdate(friendID, {
+      $pull: { friends: authToken.id },
+    }).orFail();
+
     const user = await User.findByIdAndUpdate(
       authToken.id,
       { $pull: { friends: friendID } },

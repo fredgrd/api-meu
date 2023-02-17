@@ -278,6 +278,9 @@ const deleteFriend = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         return;
     }
     try {
+        yield user_1.User.findByIdAndUpdate(friendID, {
+            $pull: { friends: authToken.id },
+        }).orFail();
         const user = yield user_1.User.findByIdAndUpdate(authToken.id, { $pull: { friends: friendID } }, { new: true })
             .populate('friends', {
             id: 1,
