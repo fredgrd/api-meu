@@ -9,5 +9,6 @@ router.post('/create', userController_1.createUser);
 router.get('/fetch', userController_1.fetchUser);
 router.patch('/update-status', userController_1.updateStatus);
 router.patch('/update-avatar', userController_1.updateAvatar);
+router.patch('/delete-friend', userController_1.deleteFriend);
 router.get('/fetch-friend', userController_1.fetchFriendDetails);
 router.post('/parse-contacts', userController_1.parseUserContacts);

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   createUser,
+  deleteFriend,
   fetchFriendDetails,
   fetchUser,
   parseUserContacts,
@@ -17,6 +18,8 @@ router.get('/fetch', fetchUser);
 router.patch('/update-status', updateStatus);
 
 router.patch('/update-avatar', updateAvatar);
+
+router.patch('/delete-friend', deleteFriend);
 
 router.get('/fetch-friend', fetchFriendDetails);
 
