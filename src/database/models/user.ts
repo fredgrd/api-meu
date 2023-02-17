@@ -15,6 +15,7 @@ export interface UserFriendDetails {
   _id: String;
   number: String;
   name: String;
+  avatar_url: String;
 }
 
 // Schemas

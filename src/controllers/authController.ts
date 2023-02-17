@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { MongooseError } from 'mongoose';
 import { APIError } from '../database/models/errors';
 import { TwilioService } from '../services/twilioService';
-import { Twilio } from 'twilio';
 
 import { User, UserFriendDetails } from '../database/models/user';
 
@@ -79,6 +78,7 @@ export const completeVerificationCheck = async (
         id: 1,
         number: 1,
         name: 1,
+        avatar_url: 1,
       })
       .orFail();
 
@@ -108,6 +108,7 @@ export const completeVerificationCheck = async (
           id: e._id,
           number: e.number,
           name: e.name,
+          avatar_url: e.avatar_url,
         })),
         created_at: user.created_at,
       },

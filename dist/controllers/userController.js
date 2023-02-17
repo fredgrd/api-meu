@@ -91,6 +91,7 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             id: 1,
             number: 1,
             name: 1,
+            avatar_url: 1,
         });
         if (user) {
             // Set cookie
@@ -115,6 +116,7 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     id: e._id,
                     number: e.number,
                     name: e.name,
+                    avatar_url: e.avatar_url,
                 })),
                 created_at: user.created_at,
             });
@@ -154,6 +156,7 @@ const updateAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             id: 1,
             number: 1,
             name: 1,
+            avatar_url: 1,
         })
             .orFail();
         const userFriends = user.friends;
@@ -167,6 +170,7 @@ const updateAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 id: e._id,
                 number: e.number,
                 name: e.name,
+                avatar_url: e.avatar_url,
             })),
             created_at: user.created_at,
         });
@@ -202,6 +206,7 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             id: 1,
             number: 1,
             name: 1,
+            avatar_url: 1,
         })
             .orFail();
         const userFriends = user.friends;
@@ -215,6 +220,7 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 id: e._id,
                 number: e.number,
                 name: e.name,
+                avatar_url: e.avatar_url,
             })),
             created_at: user.created_at,
         });
