@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.completeVerificationCheck = exports.startVerificationCheck = void 0;
+exports.completeVerificationCheck = exports.startVerificationCheck = void 0;
 const errors_1 = require("../database/models/errors");
 const twilioService_1 = require("../services/twilioService");
 const user_1 = require("../database/models/user");
@@ -124,10 +124,3 @@ const completeVerificationCheck = (req, res) => __awaiter(void 0, void 0, void 0
     res.status(200).json({ user: null, new_user: true });
 });
 exports.completeVerificationCheck = completeVerificationCheck;
-// Logous out the user
-// Clears the user AuthToken from the browser
-const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.clearCookie('auth_token');
-    res.sendStatus(200);
-});
-exports.logout = logout;

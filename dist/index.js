@@ -41,20 +41,6 @@ app.use('/friend-request', friendRequestRouter_1.friendRequestRouter);
 // Room routes
 app.use('/room', roomRouter_1.roomRouter);
 exports.wss.on('connection', webSocketController_1.wsOnConnection);
-// (ws) => {
-//   const extWs = ws as ExtWebSocket;
-//   extWs.on('message', (data) => {
-//     const body = JSON.parse(data.toString());
-//     extWs.room_id = String(Math.random());
-//     wss.clients.forEach((client) => {
-//       const extClient = client as ExtWebSocket;
-//       console.log('CLIENT ROOM', extClient.room_id);
-//       if (client !== extWs && client.readyState === WebSocket.OPEN) {
-//         client.send(data.toString());
-//       }
-//     });
-//   });
-// });
 server.listen(process.env.PORT, () => {
     console.log(`Server is listening on port ${process.env.PORT}`);
 });

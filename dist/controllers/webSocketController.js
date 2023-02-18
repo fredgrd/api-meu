@@ -15,6 +15,7 @@ const url_1 = require("url");
 const room_1 = require("../database/models/room");
 const index_1 = require("../index");
 const logError_1 = require("../helpers/logError");
+const notificationService_1 = require("../services/notificationService");
 const isRoomMessage = (message) => {
     const castedMessage = message;
     return (castedMessage.sender !== undefined && castedMessage.message !== undefined);
@@ -34,6 +35,7 @@ const brodcastUpdate = (ws, update) => {
     });
 };
 const broadcastMessage = (ws, message) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('room, update');
     const room = yield room_1.Room.findByIdAndUpdate(ws.room_id, {
         $push: {
             messages: { sender: message.sender, message: message.message },
@@ -42,12 +44,18 @@ const broadcastMessage = (ws, message) => __awaiter(void 0, void 0, void 0, func
         (0, logError_1.logMongooseError)(e, 'webSocketController/onMessage');
         return;
     });
-    const savedMessage = room === null || room === void 0 ? void 0 : room.messages[(room === null || room === void 0 ? void 0 : room.messages.length) - 1];
+    if (!room) {
+        return;
+    }
+    const savedMessage = room.messages[room.messages.length - 1];
+    const connectedClients = [];
     index_1.wss.clients.forEach((wsClient) => {
         const client = wsClient;
         if (client !== ws &&
             client.room_id === ws.room_id &&
             client.readyState === ws_1.WebSocket.OPEN) {
+            if (client.user_id)
+                connectedClients.push(client.user_id);
             client.send(JSON.stringify({
                 id: savedMessage === null || savedMessage === void 0 ? void 0 : savedMessage._id,
                 kind: 'text',
@@ -60,17 +68,24 @@ const broadcastMessage = (ws, message) => __awaiter(void 0, void 0, void 0, func
             }));
         }
     });
+    const notificationService = new notificationService_1.NotificationService();
+    yield notificationService.notifyFriends(room === null || room === void 0 ? void 0 : room.user, connectedClients);
 });
 const wsOnConnection = (ws, req) => __awaiter(void 0, void 0, void 0, function* () {
-    const roomID = (0, url_1.parse)(req.url).query;
-    if (typeof roomID === 'string') {
-        ws.room_id = roomID;
-    }
-    else {
-        console.log('webSocketController/onConnection error: NoRoom');
+    const query = (0, url_1.parse)(req.url).query;
+    if (query === null) {
+        console.log('webSocketController/onConnection error: NoData');
         ws.close();
         return;
     }
+    const matches = query.match(/room_id=([\w]+)&user_id=([\w]+)/);
+    if (matches === null) {
+        console.log('webSocketController/onConnection error: NoData');
+        ws.close();
+        return;
+    }
+    ws.room_id = matches[1];
+    ws.user_id = matches[2];
     ws.on('message', (data) => __awaiter(void 0, void 0, void 0, function* () {
         const dataString = data.toString();
         const payload = JSON.parse(dataString);

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchMessages = exports.fetchRooms = exports.deleteRoom = exports.createRoom = void 0;
+exports.fetchMessages = exports.fetchRoom = exports.fetchRooms = exports.deleteRoom = exports.createRoom = void 0;
 const errors_1 = require("../database/models/errors");
 const room_1 = require("../database/models/room");
 const authenticateUser_1 = __importDefault(require("../helpers/authenticateUser"));
@@ -120,6 +120,39 @@ const fetchRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.fetchRooms = fetchRooms;
+/**
+ * Fetches the room.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+const fetchRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authToken = (0, authenticateUser_1.default)(req, res, 'RoomController/fetchRoom');
+    if (!authToken)
+        return;
+    const roomID = req.query.room_id;
+    if (typeof roomID !== 'string') {
+        res.status(400).send(errors_1.APIError.NoData);
+        return;
+    }
+    try {
+        const room = yield room_1.Room.findById(roomID)
+            .select('id, user name description')
+            .orFail();
+        res.status(200).json({
+            id: room._id,
+            user: room.user,
+            name: room.name,
+            description: room.description,
+        });
+    }
+    catch (error) {
+        const mongooseError = error;
+        console.log(`RoomController/fetchRoom error: ${mongooseError.name} ${mongooseError.message}`);
+        res.status(500).send(errors_1.APIError.Internal);
+    }
+});
+exports.fetchRoom = fetchRoom;
 /**
  * Fetches the room's messages.
  *

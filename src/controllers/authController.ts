@@ -139,10 +139,3 @@ export const completeVerificationCheck = async (
 
   res.status(200).json({ user: null, new_user: true });
 };
-
-// Logous out the user
-// Clears the user AuthToken from the browser
-export const logout = async (req: Request, res: Response) => {
-  res.clearCookie('auth_token');
-  res.sendStatus(200);
-};

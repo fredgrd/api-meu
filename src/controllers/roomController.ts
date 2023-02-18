@@ -128,6 +128,44 @@ export const fetchRooms = async (req: Request, res: Response) => {
 };
 
 /**
+ * Fetches the room.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+export const fetchRoom = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'RoomController/fetchRoom');
+
+  if (!authToken) return;
+
+  const roomID: string | any = req.query.room_id;
+
+  if (typeof roomID !== 'string') {
+    res.status(400).send(APIError.NoData);
+    return;
+  }
+
+  try {
+    const room = await Room.findById(roomID)
+      .select('id, user name description')
+      .orFail();
+
+    res.status(200).json({
+      id: room._id,
+      user: room.user,
+      name: room.name,
+      description: room.description,
+    });
+  } catch (error) {
+    const mongooseError = error as MongooseError;
+    console.log(
+      `RoomController/fetchRoom error: ${mongooseError.name} ${mongooseError.message}`
+    );
+    res.status(500).send(APIError.Internal);
+  }
+};
+
+/**
  * Fetches the room's messages.
  *
  * @param req Express.Request
