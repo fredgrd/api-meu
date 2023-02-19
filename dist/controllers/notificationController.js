@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchNotifications = void 0;
+exports.updateNotification = exports.fetchNotifications = void 0;
 const errors_1 = require("../database/models/errors");
 const notification_1 = require("../database/models/notification");
 const authenticateUser_1 = __importDefault(require("../helpers/authenticateUser"));
@@ -41,6 +41,7 @@ const fetchNotifications = (req, res) => __awaiter(void 0, void 0, void 0, funct
                 status: e.status,
                 message: e.message,
                 type: e.type,
+                timestamp: e.timestamp,
             };
         });
         res.status(200).json(result);
@@ -52,3 +53,25 @@ const fetchNotifications = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.fetchNotifications = fetchNotifications;
+const updateNotification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authToken = (0, authenticateUser_1.default)(req, res, 'NotificationController/updateNotification');
+    if (!authToken)
+        return;
+    const notificationID = req.body.notification_id;
+    const status = req.body.status;
+    if (typeof notificationID !== 'string' || typeof status !== 'string') {
+        res.status(400).send(errors_1.APIError.NoData);
+        return;
+    }
+    try {
+        yield notification_1.Notification.findByIdAndUpdate(notificationID, {
+            status: status,
+        }).orFail();
+    }
+    catch (error) {
+        const mongooseError = error;
+        console.log(`NotificationController/updateNotification error: ${mongooseError.name} ${mongooseError.message}`);
+        res.status(500).send(errors_1.APIError.Internal);
+    }
+});
+exports.updateNotification = updateNotification;

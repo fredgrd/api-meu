@@ -41,6 +41,7 @@ export const fetchNotifications = async (req: Request, res: Response) => {
         status: e.status,
         message: e.message,
         type: e.type,
+        timestamp: e.timestamp,
       };
     });
 
@@ -49,6 +50,36 @@ export const fetchNotifications = async (req: Request, res: Response) => {
     const mongooseError = error as MongooseError;
     console.log(
       `NotificationController/fetchNotifications error: ${mongooseError.name} ${mongooseError.message}`
+    );
+    res.status(500).send(APIError.Internal);
+  }
+};
+
+export const updateNotification = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(
+    req,
+    res,
+    'NotificationController/updateNotification'
+  );
+
+  if (!authToken) return;
+
+  const notificationID: string | any = req.body.notification_id;
+  const status: string | any = req.body.status;
+
+  if (typeof notificationID !== 'string' || typeof status !== 'string') {
+    res.status(400).send(APIError.NoData);
+    return;
+  }
+
+  try {
+    await Notification.findByIdAndUpdate(notificationID, {
+      status: status,
+    }).orFail();
+  } catch (error) {
+    const mongooseError = error as MongooseError;
+    console.log(
+      `NotificationController/updateNotification error: ${mongooseError.name} ${mongooseError.message}`
     );
     res.status(500).send(APIError.Internal);
   }

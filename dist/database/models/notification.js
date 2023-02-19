@@ -38,5 +38,9 @@ const NotificationSchema = new mongoose_1.Schema({
         required: true,
         enum: ['text', 'image', 'audio'],
     },
+    timestamp: {
+        type: Date,
+        default: Date.now,
+    },
 });
 exports.Notification = (0, mongoose_1.model)('Notification', NotificationSchema);

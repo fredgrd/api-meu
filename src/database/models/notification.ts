@@ -23,6 +23,7 @@ export interface INotification {
   status: string;
   message: string;
   type: string;
+  timestamp?: Date;
 }
 
 const NotificationSchema = new Schema<INotification>({
@@ -60,6 +61,10 @@ const NotificationSchema = new Schema<INotification>({
     type: String,
     required: true,
     enum: ['text', 'image', 'audio'],
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now,
   },
 });
 
