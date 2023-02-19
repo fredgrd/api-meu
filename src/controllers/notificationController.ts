@@ -76,6 +76,8 @@ export const updateNotification = async (req: Request, res: Response) => {
     await Notification.findByIdAndUpdate(notificationID, {
       status: status,
     }).orFail();
+
+    res.status(200).send('OK');
   } catch (error) {
     const mongooseError = error as MongooseError;
     console.log(

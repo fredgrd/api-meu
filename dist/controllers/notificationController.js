@@ -67,6 +67,7 @@ const updateNotification = (req, res) => __awaiter(void 0, void 0, void 0, funct
         yield notification_1.Notification.findByIdAndUpdate(notificationID, {
             status: status,
         }).orFail();
+        res.status(200).send('OK');
     }
     catch (error) {
         const mongooseError = error;
