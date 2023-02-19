@@ -6,3 +6,4 @@ const notificationController_1 = require("../controllers/notificationController"
 const router = (0, express_1.Router)();
 exports.notificationRouter = router;
 router.get('/fetch', notificationController_1.fetchNotifications);
+router.patch('/update', notificationController_1.updateNotification);
