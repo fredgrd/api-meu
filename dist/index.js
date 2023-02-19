@@ -15,6 +15,7 @@ const userRouter_1 = require("./routes/userRouter");
 const friendRequestRouter_1 = require("./routes/friendRequestRouter");
 const roomRouter_1 = require("./routes/roomRouter");
 const webSocketController_1 = require("./controllers/webSocketController");
+const notificationRouter_1 = require("./routes/notificationRouter");
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
@@ -40,6 +41,8 @@ app.use('/user', userRouter_1.userRouter);
 app.use('/friend-request', friendRequestRouter_1.friendRequestRouter);
 // Room routes
 app.use('/room', roomRouter_1.roomRouter);
+// Notification routers
+app.use('/notification', notificationRouter_1.notificationRouter);
 exports.wss.on('connection', webSocketController_1.wsOnConnection);
 server.listen(process.env.PORT, () => {
     console.log(`Server is listening on port ${process.env.PORT}`);

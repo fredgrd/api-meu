@@ -35,7 +35,6 @@ const brodcastUpdate = (ws, update) => {
     });
 };
 const broadcastMessage = (ws, message) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('room, update');
     const room = yield room_1.Room.findByIdAndUpdate(ws.room_id, {
         $push: {
             messages: { sender: message.sender, message: message.message },
@@ -44,11 +43,11 @@ const broadcastMessage = (ws, message) => __awaiter(void 0, void 0, void 0, func
         (0, logError_1.logMongooseError)(e, 'webSocketController/onMessage');
         return;
     });
-    if (!room) {
+    if (!room || !ws.user_id) {
         return;
     }
     const savedMessage = room.messages[room.messages.length - 1];
-    const connectedClients = [];
+    const connectedClients = [ws.user_id];
     index_1.wss.clients.forEach((wsClient) => {
         const client = wsClient;
         if (client !== ws &&
@@ -69,7 +68,7 @@ const broadcastMessage = (ws, message) => __awaiter(void 0, void 0, void 0, func
         }
     });
     const notificationService = new notificationService_1.NotificationService();
-    yield notificationService.notifyFriends(room === null || room === void 0 ? void 0 : room.user, connectedClients);
+    yield notificationService.notifyFriends(room.id, room.user.toString(), ws.user_id, message.message, 'text', connectedClients);
 });
 const wsOnConnection = (ws, req) => __awaiter(void 0, void 0, void 0, function* () {
     const query = (0, url_1.parse)(req.url).query;

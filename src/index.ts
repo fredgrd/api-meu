@@ -11,6 +11,7 @@ import { userRouter } from './routes/userRouter';
 import { friendRequestRouter } from './routes/friendRequestRouter';
 import { roomRouter } from './routes/roomRouter';
 import { wsOnConnection } from './controllers/webSocketController';
+import { notificationRouter } from './routes/notificationRouter';
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -46,6 +47,9 @@ app.use('/friend-request', friendRequestRouter);
 
 // Room routes
 app.use('/room', roomRouter);
+
+// Notification routers
+app.use('/notification', notificationRouter);
 
 wss.on('connection', wsOnConnection);
 

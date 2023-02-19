@@ -42,7 +42,6 @@ const brodcastUpdate = (ws: IRoomWebSocket, update: IRoomUpdate) => {
 };
 
 const broadcastMessage = async (ws: IRoomWebSocket, message: IRoomMessage) => {
-  console.log('room, update');
   const room = await Room.findByIdAndUpdate(
     ws.room_id,
     {
@@ -56,13 +55,13 @@ const broadcastMessage = async (ws: IRoomWebSocket, message: IRoomMessage) => {
     return;
   });
 
-  if (!room) {
+  if (!room || !ws.user_id) {
     return;
   }
 
   const savedMessage = room.messages[room.messages.length - 1];
 
-  const connectedClients: string[] = [];
+  const connectedClients: string[] = [ws.user_id];
   wss.clients.forEach((wsClient) => {
     const client = wsClient as IRoomWebSocket;
     if (
@@ -88,7 +87,14 @@ const broadcastMessage = async (ws: IRoomWebSocket, message: IRoomMessage) => {
   });
 
   const notificationService = new NotificationService();
-  await notificationService.notifyFriends(room?.user, connectedClients);
+  await notificationService.notifyFriends(
+    room.id,
+    room.user.toString(),
+    ws.user_id,
+    message.message,
+    'text',
+    connectedClients
+  );
 };
 
 export const wsOnConnection = async (ws: IRoomWebSocket, req: Request) => {

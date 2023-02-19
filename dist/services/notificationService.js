@@ -10,17 +10,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationService = void 0;
+const notification_1 = require("../database/models/notification");
 const user_1 = require("../database/models/user");
 class NotificationService {
     constructor() { }
-    notifyFriends(userID, connectedFriends) {
+    notifyFriends(roomID, ownerID, senderID, message, type, connectedFriends) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield user_1.User.findById(userID).select('friends').orFail();
+                const user = yield user_1.User.findById(ownerID).select('friends').orFail();
                 // Filter ids
                 let ids = user.friends.map((e) => e.toString());
-                ids.push(userID.toString());
+                ids.push(ownerID.toString());
                 ids = ids.filter((e) => !connectedFriends.includes(e));
+                if (!ids.length) {
+                    return;
+                }
+                // Create notifications
+                const notifications = ids.map((e) => {
+                    const notification = {
+                        room_id: roomID,
+                        user_id: e,
+                        sender_id: senderID,
+                        status: 'sent',
+                        message: message,
+                        type: type,
+                    };
+                    return notification;
+                });
+                yield notification_1.Notification.insertMany(notifications);
                 console.log('NOTIFY THIS USERS', ids);
             }
             catch (error) {
