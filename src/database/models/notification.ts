@@ -7,9 +7,14 @@ export interface INotificationSenderDetails {
   avatar_url: string;
 }
 
+export interface INotificationRoomDetails {
+  _id: Types.ObjectId;
+  name: string;
+}
+
 export interface INotification {
   _id?: Types.ObjectId;
-  room_id: Types.ObjectId | string;
+  room_id: Types.ObjectId | INotificationRoomDetails | string;
   user_id: Types.ObjectId | string;
   sender_id: Types.ObjectId | INotificationSenderDetails | string;
   sender_name?: string;

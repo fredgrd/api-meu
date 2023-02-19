@@ -23,12 +23,16 @@ const fetchNotifications = (req, res) => __awaiter(void 0, void 0, void 0, funct
     try {
         const notifications = yield notification_1.Notification.find({
             user_id: authToken.id,
-        }).populate('sender_id', { name: 1, avatar_url: 1 });
+        })
+            .populate('sender_id', { name: 1, avatar_url: 1 })
+            .populate('room_id', { name: 1 });
         const result = notifications.map((e) => {
             const userDetails = e.sender_id;
+            const roomDetails = e.room_id;
             return {
                 id: e.id,
-                room_id: e.room_id.toString(),
+                room_id: roomDetails._id.toString(),
+                room_name: roomDetails.name,
                 user_id: e.user_id.toString(),
                 sender_id: userDetails._id.toString(),
                 sender_name: userDetails.name,
