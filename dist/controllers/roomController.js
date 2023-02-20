@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchMessages = exports.fetchRoom = exports.fetchRooms = exports.deleteRoom = exports.createRoom = void 0;
+exports.uploadAudio = exports.fetchMessages = exports.fetchRoom = exports.fetchRooms = exports.deleteRoom = exports.createRoom = void 0;
 const errors_1 = require("../database/models/errors");
 const room_1 = require("../database/models/room");
+const s3Service_1 = __importDefault(require("../services/s3Service"));
 const authenticateUser_1 = __importDefault(require("../helpers/authenticateUser"));
 /**
  * Creates a user's room.
@@ -194,3 +195,32 @@ const fetchMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.fetchMessages = fetchMessages;
+/**
+ * Upload the audio file.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+const uploadAudio = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const authToken = (0, authenticateUser_1.default)(req, res, 'RoomController/fetchRoom');
+    if (!authToken)
+        return;
+    const file = (_a = req.file) === null || _a === void 0 ? void 0 : _a.buffer;
+    if (!file) {
+        console.log('RoomController/uploadAudio error: NoFile');
+        return;
+    }
+    const s3 = new s3Service_1.default();
+    const path = yield s3.uploadAudio(file);
+    if (path) {
+        res
+            .status(200)
+            .json({ audio_url: `https://d3s4go4cmdphqe.cloudfront.net/${path}` });
+        return;
+    }
+    else {
+        res.status(500).send(errors_1.APIError.Internal);
+    }
+});
+exports.uploadAudio = uploadAudio;

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { MongooseError } from 'mongoose';
 import { APIError } from '../database/models/errors';
 import { IRoomMessageUserDetails, Room } from '../database/models/room';
+import S3Service from '../services/s3Service';
 
 import authenticateUser from '../helpers/authenticateUser';
 
@@ -208,6 +209,36 @@ export const fetchMessages = async (req: Request, res: Response) => {
     console.log(
       `RoomController/fetchRooms error: ${mongooseError.name} ${mongooseError.message}`
     );
+    res.status(500).send(APIError.Internal);
+  }
+};
+
+/**
+ * Upload the audio file.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+export const uploadAudio = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'RoomController/fetchRoom');
+  if (!authToken) return;
+
+  const file = req.file?.buffer;
+
+  if (!file) {
+    console.log('RoomController/uploadAudio error: NoFile');
+    return;
+  }
+
+  const s3 = new S3Service();
+  const path = await s3.uploadAudio(file);
+
+  if (path) {
+    res
+      .status(200)
+      .json({ audio_url: `https://d3s4go4cmdphqe.cloudfront.net/${path}` });
+    return;
+  } else {
     res.status(500).send(APIError.Internal);
   }
 };
