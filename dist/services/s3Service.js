@@ -39,5 +39,25 @@ class S3Service {
             }
         });
     }
+    uploadImage(file) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const key = `image-${(0, uuid_1.v4)()}.jpeg`;
+            const params = {
+                Key: key,
+                Bucket: process.env.AWS_BUCKET_NAME || '',
+                Body: file,
+                ContentType: 'image/jpeg',
+            };
+            try {
+                yield this.s3.upload(params).promise();
+                return key;
+            }
+            catch (error) {
+                const awsError = error;
+                console.log(`S3Service/uploadImage error: ${awsError.name} ${awsError.message}`);
+                return null;
+            }
+        });
+    }
 }
 exports.default = S3Service;

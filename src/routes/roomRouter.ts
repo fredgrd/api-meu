@@ -8,6 +8,7 @@ import {
   fetchRoom,
   fetchRooms,
   uploadAudio,
+  uploadImage,
 } from '../controllers/roomController';
 
 const router = Router();
@@ -26,5 +27,7 @@ router.get('/rooms/fetch', fetchRooms);
 router.get('/messages', fetchMessages);
 
 router.post('/audio-upload', upload.single('audiofile'), uploadAudio);
+
+router.post('/image-upload', upload.single('imagefile'), uploadImage);
 
 export { router as roomRouter };

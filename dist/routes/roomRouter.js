@@ -37,3 +37,4 @@ router.get('/fetch', roomController_1.fetchRoom);
 router.get('/rooms/fetch', roomController_1.fetchRooms);
 router.get('/messages', roomController_1.fetchMessages);
 router.post('/audio-upload', upload.single('audiofile'), roomController_1.uploadAudio);
+router.post('/image-upload', upload.single('imagefile'), roomController_1.uploadImage);

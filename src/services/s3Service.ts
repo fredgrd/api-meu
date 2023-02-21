@@ -33,6 +33,28 @@ class S3Service {
       return null;
     }
   }
+
+  async uploadImage(file: Buffer): Promise<String | null> {
+    const key = `image-${uuidv4()}.jpeg`;
+
+    const params: S3.PutObjectRequest = {
+      Key: key,
+      Bucket: process.env.AWS_BUCKET_NAME || '',
+      Body: file,
+      ContentType: 'image/jpeg',
+    };
+
+    try {
+      await this.s3.upload(params).promise();
+      return key;
+    } catch (error) {
+      const awsError = error as AWSError;
+      console.log(
+        `S3Service/uploadImage error: ${awsError.name} ${awsError.message}`
+      );
+      return null;
+    }
+  }
 }
 
 export default S3Service;

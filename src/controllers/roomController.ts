@@ -221,7 +221,7 @@ export const fetchMessages = async (req: Request, res: Response) => {
  * @param res Express.Response
  */
 export const uploadAudio = async (req: Request, res: Response) => {
-  const authToken = authenticateUser(req, res, 'RoomController/fetchRoom');
+  const authToken = authenticateUser(req, res, 'RoomController/uploadAudio');
   if (!authToken) return;
 
   const file = req.file?.buffer;
@@ -238,6 +238,36 @@ export const uploadAudio = async (req: Request, res: Response) => {
     res
       .status(200)
       .json({ audio_url: `https://d3s4go4cmdphqe.cloudfront.net/${path}` });
+    return;
+  } else {
+    res.status(500).send(APIError.Internal);
+  }
+};
+
+/**
+ * Upload the image file.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+export const uploadImage = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'RoomController/uploadImage');
+  if (!authToken) return;
+
+  const file = req.file?.buffer;
+
+  if (!file) {
+    console.log('RoomController/uploadImage error: NoFile');
+    return;
+  }
+
+  const s3 = new S3Service();
+  const path = await s3.uploadImage(file);
+
+  if (path) {
+    res
+      .status(200)
+      .json({ image_url: `https://d3s4go4cmdphqe.cloudfront.net/${path}` });
     return;
   } else {
     res.status(500).send(APIError.Internal);
