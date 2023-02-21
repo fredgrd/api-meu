@@ -46,7 +46,11 @@ const broadcastMessage = async (ws: IRoomWebSocket, message: IRoomMessage) => {
     ws.room_id,
     {
       $push: {
-        messages: { sender: message.sender, message: message.message },
+        messages: {
+          sender: message.sender,
+          kind: message.kind,
+          message: message.message,
+        },
       },
     },
     { safe: true, new: true }
@@ -74,12 +78,12 @@ const broadcastMessage = async (ws: IRoomWebSocket, message: IRoomMessage) => {
       client.send(
         JSON.stringify({
           id: savedMessage?._id,
-          kind: 'text',
           sender: message.sender,
           sender_name: message.sender_name,
           sender_number: message.sender_number,
           sender_thumbnail: message.sender_thumbnail,
           message: message.message,
+          kind: message.kind,
           timestamp: savedMessage?.timestamp,
         })
       );
@@ -92,7 +96,7 @@ const broadcastMessage = async (ws: IRoomWebSocket, message: IRoomMessage) => {
     room.user.toString(),
     ws.user_id,
     message.message,
-    'text',
+    message.kind,
     connectedClients
   );
 };

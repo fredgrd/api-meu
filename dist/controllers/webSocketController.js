@@ -37,7 +37,11 @@ const brodcastUpdate = (ws, update) => {
 const broadcastMessage = (ws, message) => __awaiter(void 0, void 0, void 0, function* () {
     const room = yield room_1.Room.findByIdAndUpdate(ws.room_id, {
         $push: {
-            messages: { sender: message.sender, message: message.message },
+            messages: {
+                sender: message.sender,
+                kind: message.kind,
+                message: message.message,
+            },
         },
     }, { safe: true, new: true }).catch((e) => {
         (0, logError_1.logMongooseError)(e, 'webSocketController/onMessage');
@@ -57,18 +61,18 @@ const broadcastMessage = (ws, message) => __awaiter(void 0, void 0, void 0, func
                 connectedClients.push(client.user_id);
             client.send(JSON.stringify({
                 id: savedMessage === null || savedMessage === void 0 ? void 0 : savedMessage._id,
-                kind: 'text',
                 sender: message.sender,
                 sender_name: message.sender_name,
                 sender_number: message.sender_number,
                 sender_thumbnail: message.sender_thumbnail,
                 message: message.message,
+                kind: message.kind,
                 timestamp: savedMessage === null || savedMessage === void 0 ? void 0 : savedMessage.timestamp,
             }));
         }
     });
     const notificationService = new notificationService_1.NotificationService();
-    yield notificationService.notifyFriends(room.id, room.user.toString(), ws.user_id, message.message, 'text', connectedClients);
+    yield notificationService.notifyFriends(room.id, room.user.toString(), ws.user_id, message.message, message.kind, connectedClients);
 });
 const wsOnConnection = (ws, req) => __awaiter(void 0, void 0, void 0, function* () {
     const query = (0, url_1.parse)(req.url).query;

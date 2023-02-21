@@ -40,7 +40,7 @@ export const fetchNotifications = async (req: Request, res: Response) => {
         fcm_id: e.fcm_id,
         status: e.status,
         message: e.message,
-        type: e.type,
+        kind: e.kind,
         timestamp: e.timestamp,
       };
     });

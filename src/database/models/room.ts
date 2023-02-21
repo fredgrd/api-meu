@@ -17,12 +17,19 @@ export interface IRoomMessageUserDetails {
   avatar_url: string;
 }
 
+export enum IRoomMessageKind {
+  text = 'text',
+  audio = 'audio',
+  image = 'image',
+}
+
 export interface IRoomMessage {
   _id?: Types.ObjectId;
   sender: IRoomMessageUserDetails | string;
   sender_name?: string;
   sender_number?: string;
   sender_thumbnail?: string;
+  kind: IRoomMessageKind;
   message: string;
   timestamp?: Date;
 }
@@ -37,6 +44,11 @@ const RoomMessageSchema = new Schema<IRoomMessage>({
   sender: {
     type: Schema.Types.ObjectId,
     ref: 'User',
+    required: true,
+  },
+  kind: {
+    type: String,
+    enum: ['text', 'audio', 'image'],
     required: true,
   },
   message: {

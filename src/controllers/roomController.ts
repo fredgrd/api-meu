@@ -199,6 +199,7 @@ export const fetchMessages = async (req: Request, res: Response) => {
         sender_number: userDetails.number,
         sender_thumbnail: userDetails.avatar_url,
         message: message.message,
+        kind: message.kind,
         timestamp: message.timestamp,
       };
     });

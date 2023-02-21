@@ -14,7 +14,7 @@ const notification_1 = require("../database/models/notification");
 const user_1 = require("../database/models/user");
 class NotificationService {
     constructor() { }
-    notifyFriends(roomID, ownerID, senderID, message, type, connectedFriends) {
+    notifyFriends(roomID, ownerID, senderID, message, kind, connectedFriends) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const user = yield user_1.User.findById(ownerID).select('friends').orFail();
@@ -33,7 +33,7 @@ class NotificationService {
                         sender_id: senderID,
                         status: 'sent',
                         message: message,
-                        type: type,
+                        kind: kind,
                     };
                     return notification;
                 });

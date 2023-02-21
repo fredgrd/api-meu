@@ -1,4 +1,5 @@
 import { Schema, Types, model } from 'mongoose';
+import { IRoomMessageKind } from './room';
 
 // Interface
 export interface INotificationSenderDetails {
@@ -22,7 +23,7 @@ export interface INotification {
   fcm_id?: string;
   status: string;
   message: string;
-  type: string;
+  kind: IRoomMessageKind;
   timestamp?: Date;
 }
 
@@ -57,7 +58,7 @@ const NotificationSchema = new Schema<INotification>({
     type: String,
     required: true,
   },
-  type: {
+  kind: {
     type: String,
     required: true,
     enum: ['text', 'image', 'audio'],

@@ -40,7 +40,7 @@ const fetchNotifications = (req, res) => __awaiter(void 0, void 0, void 0, funct
                 fcm_id: e.fcm_id,
                 status: e.status,
                 message: e.message,
-                type: e.type,
+                kind: e.kind,
                 timestamp: e.timestamp,
             };
         });

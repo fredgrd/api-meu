@@ -1,5 +1,6 @@
 import { MongooseError, Types } from 'mongoose';
 import { INotification, Notification } from '../database/models/notification';
+import { IRoomMessageKind } from '../database/models/room';
 import { User } from '../database/models/user';
 
 export class NotificationService {
@@ -10,7 +11,7 @@ export class NotificationService {
     ownerID: string,
     senderID: string,
     message: string,
-    type: string,
+    kind: IRoomMessageKind,
     connectedFriends: string[]
   ) {
     try {
@@ -33,7 +34,7 @@ export class NotificationService {
           sender_id: senderID,
           status: 'sent',
           message: message,
-          type: type,
+          kind: kind,
         };
 
         return notification;

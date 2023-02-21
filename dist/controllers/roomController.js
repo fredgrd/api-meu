@@ -183,6 +183,7 @@ const fetchMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 sender_number: userDetails.number,
                 sender_thumbnail: userDetails.avatar_url,
                 message: message.message,
+                kind: message.kind,
                 timestamp: message.timestamp,
             };
         });
