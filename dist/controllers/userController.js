@@ -18,6 +18,7 @@ const apiTokens_2 = require("../helpers/apiTokens");
 const user_1 = require("../database/models/user");
 const errors_1 = require("../database/models/errors");
 const authenticateUser_1 = __importDefault(require("../helpers/authenticateUser"));
+const s3Service_1 = __importDefault(require("../services/s3Service"));
 /**
  * Creates a user document.
  *
@@ -43,7 +44,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const user = yield user_1.User.create({
             number: signupToken.number,
             name: name,
-            avatar_url: `https://ui-avatars.com/api/?size=300&name=${name}&length=1`,
+            avatar_url: 'none',
         });
         // Set cookie
         const token = (0, apiTokens_2.signAuthToken)({
@@ -140,17 +141,24 @@ exports.fetchUser = fetchUser;
  * @returns
  */
 const updateAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/updateAvatar');
+    var _a;
+    const authToken = (0, authenticateUser_1.default)(req, res, 'RoomController/uploadImage');
     if (!authToken)
         return;
-    const url = req.body.avatar_url;
-    if (typeof url !== 'string') {
-        res.status(400).send(errors_1.APIError.NoData);
+    const file = (_a = req.file) === null || _a === void 0 ? void 0 : _a.buffer;
+    if (!file) {
+        console.log('RoomController/uploadImage error: NoFile');
+        return;
+    }
+    const s3 = new s3Service_1.default();
+    const path = yield s3.uploadImage(file);
+    if (!path) {
+        res.status(500).send(errors_1.APIError.Internal);
         return;
     }
     try {
         const user = yield user_1.User.findByIdAndUpdate(authToken.id, {
-            avatar_url: url,
+            avatar_url: `https://d3s4go4cmdphqe.cloudfront.net/${path}`,
         }, { new: true })
             .populate('friends', {
             id: 1,

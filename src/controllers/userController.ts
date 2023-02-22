@@ -6,6 +6,7 @@ import { User, UserFriendDetails } from '../database/models/user';
 import { APIError } from '../database/models/errors';
 
 import authenticateUser from '../helpers/authenticateUser';
+import S3Service from '../services/s3Service';
 
 /**
  * Creates a user document.
@@ -36,7 +37,7 @@ export const createUser = async (req: Request, res: Response) => {
     const user = await User.create({
       number: signupToken.number,
       name: name,
-      avatar_url: `https://ui-avatars.com/api/?size=300&name=${name}&length=1`,
+      avatar_url: 'none',
     });
 
     // Set cookie
@@ -141,14 +142,21 @@ export const fetchUser = async (req: Request, res: Response) => {
  * @returns
  */
 export const updateAvatar = async (req: Request, res: Response) => {
-  const authToken = authenticateUser(req, res, 'UserController/updateAvatar');
-
+  const authToken = authenticateUser(req, res, 'RoomController/uploadImage');
   if (!authToken) return;
 
-  const url: string | any = req.body.avatar_url;
+  const file = req.file?.buffer;
 
-  if (typeof url !== 'string') {
-    res.status(400).send(APIError.NoData);
+  if (!file) {
+    console.log('RoomController/uploadImage error: NoFile');
+    return;
+  }
+
+  const s3 = new S3Service();
+  const path = await s3.uploadImage(file);
+
+  if (!path) {
+    res.status(500).send(APIError.Internal);
     return;
   }
 
@@ -156,7 +164,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
     const user = await User.findByIdAndUpdate(
       authToken.id,
       {
-        avatar_url: url,
+        avatar_url: `https://d3s4go4cmdphqe.cloudfront.net/${path}`,
       },
       { new: true }
     )

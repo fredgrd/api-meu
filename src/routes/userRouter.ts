@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import multer, { memoryStorage } from 'multer';
 import {
   createUser,
   deleteFriend,
@@ -11,13 +12,16 @@ import {
 
 const router = Router();
 
+const storage = memoryStorage();
+const upload = multer({ storage });
+
 router.post('/create', createUser);
 
 router.get('/fetch', fetchUser);
 
 router.patch('/update-status', updateStatus);
 
-router.patch('/update-avatar', updateAvatar);
+router.patch('/update-avatar', upload.single('imagefile'), updateAvatar);
 
 router.patch('/delete-friend', deleteFriend);
 
