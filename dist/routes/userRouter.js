@@ -33,6 +33,7 @@ const storage = (0, multer_1.memoryStorage)();
 const upload = (0, multer_1.default)({ storage });
 router.post('/create', userController_1.createUser);
 router.get('/fetch', userController_1.fetchUser);
+router.patch('/update-token', userController_1.updateToken);
 router.patch('/update-status', userController_1.updateStatus);
 router.patch('/update-avatar', upload.single('imagefile'), userController_1.updateAvatar);
 router.patch('/delete-friend', userController_1.deleteFriend);

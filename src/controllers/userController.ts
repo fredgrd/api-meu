@@ -145,6 +145,66 @@ export const fetchUser = async (req: Request, res: Response) => {
 };
 
 /**
+ * Update the user's messaging token.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+export const updateToken = async (req: Request, res: Response) => {
+  const authToken = authenticateUser(req, res, 'UserController/updateToken');
+
+  if (!authToken) return;
+
+  const fcmToken: string | any = req.body.fcm_token;
+
+  if (typeof fcmToken !== 'string') {
+    res.status(400).send(APIError.NoData);
+    return;
+  }
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      authToken.id,
+      {
+        fcm_token: fcmToken,
+      },
+      { new: true }
+    )
+      .populate('friends', {
+        id: 1,
+        number: 1,
+        name: 1,
+        avatar_url: 1,
+      })
+      .orFail();
+
+    const userFriends = user.friends as UserFriendDetails[];
+
+    res.status(200).json({
+      id: user.id,
+      fcm_token: user.fcm_token,
+      number: user.number,
+      name: user.name,
+      avatar_url: user.avatar_url,
+      status: user.status,
+      friends: userFriends.map((e) => ({
+        id: e._id,
+        number: e.number,
+        name: e.name,
+        avatar_url: e.avatar_url,
+      })),
+      created_at: user.created_at,
+    });
+  } catch (error) {
+    const mongooseError = error as MongooseError;
+    console.log(
+      `UserController/updateToken error: ${mongooseError.name} ${mongooseError.message}`
+    );
+    res.status(500).send(APIError.Internal);
+  }
+};
+
+/**
  * Update the user's avatar.
  *
  * @param req Express.Request

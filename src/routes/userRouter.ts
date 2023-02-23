@@ -8,6 +8,7 @@ import {
   parseUserContacts,
   updateAvatar,
   updateStatus,
+  updateToken,
 } from '../controllers/userController';
 
 const router = Router();
@@ -18,6 +19,8 @@ const upload = multer({ storage });
 router.post('/create', createUser);
 
 router.get('/fetch', fetchUser);
+
+router.patch('/update-token', updateToken);
 
 router.patch('/update-status', updateStatus);
 

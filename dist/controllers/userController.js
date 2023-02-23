@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseUserContacts = exports.deleteFriend = exports.fetchFriendDetails = exports.updateStatus = exports.updateAvatar = exports.fetchUser = exports.createUser = void 0;
+exports.parseUserContacts = exports.deleteFriend = exports.fetchFriendDetails = exports.updateStatus = exports.updateAvatar = exports.updateToken = exports.fetchUser = exports.createUser = void 0;
 const apiTokens_1 = require("../helpers/apiTokens");
 const apiTokens_2 = require("../helpers/apiTokens");
 const user_1 = require("../database/models/user");
@@ -142,6 +142,56 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.fetchUser = fetchUser;
+/**
+ * Update the user's messaging token.
+ *
+ * @param req Express.Request
+ * @param res Express.Response
+ */
+const updateToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authToken = (0, authenticateUser_1.default)(req, res, 'UserController/updateToken');
+    if (!authToken)
+        return;
+    const fcmToken = req.body.fcm_token;
+    if (typeof fcmToken !== 'string') {
+        res.status(400).send(errors_1.APIError.NoData);
+        return;
+    }
+    try {
+        const user = yield user_1.User.findByIdAndUpdate(authToken.id, {
+            fcm_token: fcmToken,
+        }, { new: true })
+            .populate('friends', {
+            id: 1,
+            number: 1,
+            name: 1,
+            avatar_url: 1,
+        })
+            .orFail();
+        const userFriends = user.friends;
+        res.status(200).json({
+            id: user.id,
+            fcm_token: user.fcm_token,
+            number: user.number,
+            name: user.name,
+            avatar_url: user.avatar_url,
+            status: user.status,
+            friends: userFriends.map((e) => ({
+                id: e._id,
+                number: e.number,
+                name: e.name,
+                avatar_url: e.avatar_url,
+            })),
+            created_at: user.created_at,
+        });
+    }
+    catch (error) {
+        const mongooseError = error;
+        console.log(`UserController/updateToken error: ${mongooseError.name} ${mongooseError.message}`);
+        res.status(500).send(errors_1.APIError.Internal);
+    }
+});
+exports.updateToken = updateToken;
 /**
  * Update the user's avatar.
  *
