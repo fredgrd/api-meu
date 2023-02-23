@@ -10,10 +10,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationService = void 0;
+const firebase_admin_1 = require("firebase-admin");
 const notification_1 = require("../database/models/notification");
 const user_1 = require("../database/models/user");
 class NotificationService {
-    constructor() { }
+    constructor() {
+        this.FCMessaging = (0, firebase_admin_1.messaging)();
+    }
+    test() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.FCMessaging.sendToDevice(' fAMUqQYw0E_NlUl_-n9kja:APA91bHt1PwYsmlgN9pwzeAOtbN2BySvZ3r-UU7IB2EVWIyndGfPAzOBZSynDvrP7qHhYOZYmYDaFmOZTFXPfbXFCrsS3lttrXQfwN90NgvJY85tMKegaK5aSFd-WoxiZb4twCcHLER0', {
+                notification: {
+                    title: 'Test',
+                    body: 'This is a test from server',
+                    click_action: `https://${process.env.GCLOUD_PROJECT}.firebaseapp.com`,
+                },
+            });
+        });
+    }
     notifyFriends(roomID, ownerID, senderID, message, kind, connectedFriends) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

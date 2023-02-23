@@ -4,6 +4,11 @@ exports.User = void 0;
 const mongoose_1 = require("mongoose");
 // Schemas
 const UserSchema = new mongoose_1.Schema({
+    fcm_token: {
+        type: String,
+        required: true,
+        default: 'none',
+    },
     number: {
         type: String,
         required: true,
@@ -17,7 +22,7 @@ const UserSchema = new mongoose_1.Schema({
     avatar_url: {
         type: String,
         required: true,
-        default: '',
+        default: 'none',
     },
     status: {
         type: String,

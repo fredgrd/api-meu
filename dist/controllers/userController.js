@@ -28,6 +28,7 @@ const s3Service_1 = __importDefault(require("../services/s3Service"));
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const token = req.cookies.signup_token;
     const name = req.body.name;
+    const fcmToken = req.body.fcm_token;
     if (!token || typeof token !== 'string') {
         console.log('CreateUser error: MissingToken');
         res.sendStatus(403);
@@ -40,8 +41,14 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(403).send(errors_1.APIError.Forbidden);
         return;
     }
+    // Verify data
+    if (typeof name !== 'string' || typeof fcmToken !== 'string') {
+        res.status(400).send(errors_1.APIError.NoData);
+        return;
+    }
     try {
         const user = yield user_1.User.create({
+            fcm_token: fcmToken,
             number: signupToken.number,
             name: name,
             avatar_url: 'none',
@@ -60,6 +67,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.clearCookie('signup_token');
         res.status(200).json({
             id: user.id,
+            fcm_token: user.fcm_token,
             number: user.number,
             name: user.name,
             avatar_url: user.avatar_url,
@@ -109,6 +117,7 @@ const fetchUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const userFriends = user.friends;
             res.status(200).json({
                 id: user.id,
+                fcm_token: user.fcm_token,
                 number: user.number,
                 name: user.name,
                 avatar_url: user.avatar_url,
@@ -170,6 +179,7 @@ const updateAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const userFriends = user.friends;
         res.status(200).json({
             id: user.id,
+            fcm_token: user.fcm_token,
             number: user.number,
             name: user.name,
             avatar_url: user.avatar_url,
@@ -220,6 +230,7 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const userFriends = user.friends;
         res.status(200).json({
             id: user.id,
+            fcm_token: user.fcm_token,
             number: user.number,
             name: user.name,
             avatar_url: user.avatar_url,
@@ -300,6 +311,7 @@ const deleteFriend = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const userFriends = user.friends;
         res.status(200).json({
             id: user.id,
+            fcm_token: user.fcm_token,
             number: user.number,
             name: user.name,
             avatar_url: user.avatar_url,

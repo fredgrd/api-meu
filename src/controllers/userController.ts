@@ -17,6 +17,7 @@ import S3Service from '../services/s3Service';
 export const createUser = async (req: Request, res: Response) => {
   const token = req.cookies.signup_token;
   const name = req.body.name;
+  const fcmToken = req.body.fcm_token;
 
   if (!token || typeof token !== 'string') {
     console.log('CreateUser error: MissingToken');
@@ -33,8 +34,15 @@ export const createUser = async (req: Request, res: Response) => {
     return;
   }
 
+  // Verify data
+  if (typeof name !== 'string' || typeof fcmToken !== 'string') {
+    res.status(400).send(APIError.NoData);
+    return;
+  }
+
   try {
     const user = await User.create({
+      fcm_token: fcmToken,
       number: signupToken.number,
       name: name,
       avatar_url: 'none',
@@ -57,6 +65,7 @@ export const createUser = async (req: Request, res: Response) => {
 
     res.status(200).json({
       id: user.id,
+      fcm_token: user.fcm_token,
       number: user.number,
       name: user.name,
       avatar_url: user.avatar_url,
@@ -110,6 +119,7 @@ export const fetchUser = async (req: Request, res: Response) => {
 
       res.status(200).json({
         id: user.id,
+        fcm_token: user.fcm_token,
         number: user.number,
         name: user.name,
         avatar_url: user.avatar_url,
@@ -180,6 +190,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
 
     res.status(200).json({
       id: user.id,
+      fcm_token: user.fcm_token,
       number: user.number,
       name: user.name,
       avatar_url: user.avatar_url,
@@ -240,6 +251,7 @@ export const updateStatus = async (req: Request, res: Response) => {
 
     res.status(200).json({
       id: user.id,
+      fcm_token: user.fcm_token,
       number: user.number,
       name: user.name,
       avatar_url: user.avatar_url,
@@ -336,6 +348,7 @@ export const deleteFriend = async (req: Request, res: Response) => {
 
     res.status(200).json({
       id: user.id,
+      fcm_token: user.fcm_token,
       number: user.number,
       name: user.name,
       avatar_url: user.avatar_url,

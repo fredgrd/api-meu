@@ -1,10 +1,29 @@
-import { MongooseError, Types } from 'mongoose';
+import { MongooseError } from 'mongoose';
+import { messaging } from 'firebase-admin';
+
 import { INotification, Notification } from '../database/models/notification';
 import { IRoomMessageKind } from '../database/models/room';
 import { User } from '../database/models/user';
 
 export class NotificationService {
-  constructor() {}
+  private FCMessaging: messaging.Messaging;
+
+  constructor() {
+    this.FCMessaging = messaging();
+  }
+
+  async test() {
+    this.FCMessaging.sendToDevice(
+      ' fAMUqQYw0E_NlUl_-n9kja:APA91bHt1PwYsmlgN9pwzeAOtbN2BySvZ3r-UU7IB2EVWIyndGfPAzOBZSynDvrP7qHhYOZYmYDaFmOZTFXPfbXFCrsS3lttrXQfwN90NgvJY85tMKegaK5aSFd-WoxiZb4twCcHLER0',
+      {
+        notification: {
+          title: 'Test',
+          body: 'This is a test from server',
+          click_action: `https://${process.env.GCLOUD_PROJECT}.firebaseapp.com`,
+        },
+      }
+    );
+  }
 
   async notifyFriends(
     roomID: string,

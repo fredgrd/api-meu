@@ -16,6 +16,7 @@ const friendRequestRouter_1 = require("./routes/friendRequestRouter");
 const roomRouter_1 = require("./routes/roomRouter");
 const webSocketController_1 = require("./controllers/webSocketController");
 const notificationRouter_1 = require("./routes/notificationRouter");
+const firebase_1 = require("./services/firebase");
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
@@ -25,6 +26,8 @@ exports.wss = new ws_1.WebSocketServer({
     server,
     path: '/websockets/room',
 });
+// Firebase
+(0, firebase_1.firebase)();
 // Connect database
 (0, database_1.connectDatabase)();
 /// Cookie parser

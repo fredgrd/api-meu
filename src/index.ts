@@ -1,6 +1,6 @@
 import express, { Express } from 'express';
 import http, { Server } from 'http';
-import { WebSocketServer, WebSocket, Server as WSServer } from 'ws';
+import { WebSocketServer, Server as WSServer } from 'ws';
 import cookieparser from 'cookie-parser';
 import bodyParser from 'body-parser';
 
@@ -13,6 +13,8 @@ import { roomRouter } from './routes/roomRouter';
 import { wsOnConnection } from './controllers/webSocketController';
 import { notificationRouter } from './routes/notificationRouter';
 
+import { firebase } from './services/firebase';
+
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
@@ -23,6 +25,9 @@ export const wss: WSServer = new WebSocketServer({
   server,
   path: '/websockets/room',
 });
+
+// Firebase
+firebase();
 
 // Connect database
 connectDatabase();

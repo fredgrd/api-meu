@@ -89,6 +89,7 @@ const completeVerificationCheck = (req, res) => __awaiter(void 0, void 0, void 0
         res.status(200).json({
             user: {
                 id: user.id,
+                fcm_token: user.fcm_token,
                 number: user.number,
                 name: user.name,
                 avatar_url: user.avatar_url,

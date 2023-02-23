@@ -3,6 +3,7 @@ import { Schema, Types, model } from 'mongoose';
 // Interfaces
 export interface IUser {
   _id?: Types.ObjectId;
+  fcm_token?: string;
   number: string;
   name: string;
   avatar_url: string;
@@ -20,6 +21,11 @@ export interface UserFriendDetails {
 
 // Schemas
 const UserSchema = new Schema({
+  fcm_token: {
+    type: String,
+    required: true,
+    default: 'none',
+  },
   number: {
     type: String,
     required: true,
@@ -33,7 +39,7 @@ const UserSchema = new Schema({
   avatar_url: {
     type: String,
     required: true,
-    default: '',
+    default: 'none',
   },
   status: {
     type: String,
