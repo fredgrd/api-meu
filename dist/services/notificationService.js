@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationService = void 0;
 const firebase_admin_1 = require("firebase-admin");
 const notification_1 = require("../database/models/notification");
+const room_1 = require("../database/models/room");
 const user_1 = require("../database/models/user");
 class NotificationService {
     constructor() {
@@ -23,7 +24,7 @@ class NotificationService {
                 notification: {
                     title: 'Test',
                     body: 'This is a test from server',
-                    click_action: `https://${process.env.GCLOUD_PROJECT}.firebaseapp.com`,
+                    click_action: `com.meu://home?room_id=63f0ae92b39dac50df7bf498`,
                 },
             });
         });
@@ -52,7 +53,25 @@ class NotificationService {
                     return notification;
                 });
                 yield notification_1.Notification.insertMany(notifications);
-                console.log('NOTIFY THIS USERS', ids);
+                const sender = yield user_1.User.findById(senderID).select('name');
+                const tokens = yield user_1.User.find({ _id: { $in: ids } }).select('fcm_token');
+                let notificationBody;
+                switch (kind) {
+                    case room_1.IRoomMessageKind.text:
+                        notificationBody = message;
+                        break;
+                    case room_1.IRoomMessageKind.image:
+                        notificationBody = 'Sent you an image';
+                    case room_1.IRoomMessageKind.audio:
+                        notificationBody = 'Sent you an audio';
+                }
+                this.FCMessaging.sendToDevice(tokens.map((e) => e.fcm_token || ''), {
+                    notification: {
+                        title: (sender === null || sender === void 0 ? void 0 : sender.name) || '',
+                        body: notificationBody,
+                        click_action: `com.meu://home?room_id=${roomID}`,
+                    },
+                });
             }
             catch (error) {
                 const mongooseError = error;

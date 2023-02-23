@@ -19,7 +19,7 @@ export class NotificationService {
         notification: {
           title: 'Test',
           body: 'This is a test from server',
-          click_action: `https://${process.env.GCLOUD_PROJECT}.firebaseapp.com`,
+          click_action: `com.meu://home?room_id=63f0ae92b39dac50df7bf498`,
         },
       }
     );
@@ -61,7 +61,30 @@ export class NotificationService {
 
       await Notification.insertMany(notifications);
 
-      console.log('NOTIFY THIS USERS', ids);
+      const sender = await User.findById(senderID).select('name');
+      const tokens = await User.find({ _id: { $in: ids } }).select('fcm_token');
+
+      let notificationBody: string;
+      switch (kind) {
+        case IRoomMessageKind.text:
+          notificationBody = message;
+          break;
+        case IRoomMessageKind.image:
+          notificationBody = 'Sent you an image';
+        case IRoomMessageKind.audio:
+          notificationBody = 'Sent you an audio';
+      }
+
+      this.FCMessaging.sendToDevice(
+        tokens.map((e) => e.fcm_token || ''),
+        {
+          notification: {
+            title: sender?.name || '',
+            body: notificationBody,
+            click_action: `com.meu://home?room_id=${roomID}`,
+          },
+        }
+      );
     } catch (error) {
       const mongooseError = error as MongooseError;
       console.log(
