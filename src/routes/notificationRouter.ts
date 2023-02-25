@@ -3,7 +3,6 @@ import {
   fetchNotifications,
   updateNotification,
 } from '../controllers/notificationController';
-import { NotificationService } from '../services/notificationService';
 
 const router = Router();
 
