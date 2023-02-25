@@ -5,6 +5,7 @@ import { FriendRequest } from '../database/models/friendRequest';
 import { User } from '../database/models/user';
 
 import authenticateUser from '../helpers/authenticateUser';
+import { NotificationService } from '../services/notificationService';
 
 enum FriendRequestError {
   SameUser = "You can't send a request to yourself",
@@ -47,7 +48,7 @@ export const createFriendRequest = async (req: Request, res: Response) => {
       .select('name avatar_url')
       .orFail();
     const receiver = await User.findOne({ number: to })
-      .select('id name avatar_url friends')
+      .select('id name avatar_url friends fcm_token')
       .orFail();
 
     const friends = receiver.friends as Types.ObjectId[];
@@ -74,6 +75,12 @@ export const createFriendRequest = async (req: Request, res: Response) => {
       status: 'pending',
     });
 
+    const notificationService = new NotificationService();
+    notificationService.notifyFriendRequest(
+      sender.name,
+      receiver.fcm_token || ''
+    );
+
     res.status(200).json({
       id: request.id,
       from: authToken.number,
@@ -87,6 +94,7 @@ export const createFriendRequest = async (req: Request, res: Response) => {
         avatar_url: receiver.avatar_url,
       },
     });
+
     return;
   } catch (error) {
     const mongooseError = error as MongooseError;

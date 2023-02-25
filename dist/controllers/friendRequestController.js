@@ -17,6 +17,7 @@ const errors_1 = require("../database/models/errors");
 const friendRequest_1 = require("../database/models/friendRequest");
 const user_1 = require("../database/models/user");
 const authenticateUser_1 = __importDefault(require("../helpers/authenticateUser"));
+const notificationService_1 = require("../services/notificationService");
 var FriendRequestError;
 (function (FriendRequestError) {
     FriendRequestError["SameUser"] = "You can't send a request to yourself";
@@ -50,7 +51,7 @@ const createFriendRequest = (req, res) => __awaiter(void 0, void 0, void 0, func
             .select('name avatar_url')
             .orFail();
         const receiver = yield user_1.User.findOne({ number: to })
-            .select('id name avatar_url friends')
+            .select('id name avatar_url friends fcm_token')
             .orFail();
         const friends = receiver.friends;
         if (friends.map((e) => String(e._id)).includes(authToken.id)) {
@@ -72,6 +73,8 @@ const createFriendRequest = (req, res) => __awaiter(void 0, void 0, void 0, func
             to_user: receiver._id,
             status: 'pending',
         });
+        const notificationService = new notificationService_1.NotificationService();
+        notificationService.notifyFriendRequest(sender.name, receiver.fcm_token || '');
         res.status(200).json({
             id: request.id,
             from: authToken.number,

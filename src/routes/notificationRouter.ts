@@ -11,10 +11,4 @@ router.get('/fetch', fetchNotifications);
 
 router.patch('/update', updateNotification);
 
-router.post('/test', (req, res) => {
-  const services = new NotificationService();
-  services.test();
-  res.sendStatus(200);
-});
-
 export { router as notificationRouter };

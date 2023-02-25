@@ -12,17 +12,13 @@ export class NotificationService {
     this.FCMessaging = messaging();
   }
 
-  async test() {
-    this.FCMessaging.sendToDevice(
-      ' fAMUqQYw0E_NlUl_-n9kja:APA91bHt1PwYsmlgN9pwzeAOtbN2BySvZ3r-UU7IB2EVWIyndGfPAzOBZSynDvrP7qHhYOZYmYDaFmOZTFXPfbXFCrsS3lttrXQfwN90NgvJY85tMKegaK5aSFd-WoxiZb4twCcHLER0',
-      {
-        notification: {
-          title: 'Test',
-          body: 'This is a test from server',
-          click_action: `com.meu://home?room_id=63f0ae92b39dac50df7bf498`,
-        },
-      }
-    );
+  async notifyFriendRequest(senderName: string, fcmToken: string) {
+    this.FCMessaging.sendToDevice(fcmToken, {
+      notification: {
+        title: 'Friend Request',
+        body: `You have a friend request from ${senderName}`,
+      },
+    });
   }
 
   async notifyFriends(
