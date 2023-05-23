@@ -4,7 +4,7 @@ export const connectDatabase = () => {
   const username = process.env.MONGODB_USERNAME;
   const password = process.env.MONGODB_PASSWORD;
 
-  const uri = `mongodb+srv://${username}:${encodeURIComponent(
+  const uri = `mongodb+srv://meus-api:${encodeURIComponent(
     password || ''
   )}@meus.w52vp20.mongodb.net/?retryWrites=true&w=majority`;
 
