@@ -74,3 +74,4 @@ typings/
 .DS_Store
 
 /dist/credentials/serviceAccount.json
+/dist/credentials
